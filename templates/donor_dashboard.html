@@ -1,81 +1,199 @@
-
 {% extends "base.html" %}
 
 {% block content %}
 <div class="donor-dashboard">
-    <div class="container mb-4">
-        <div class="card shadow">
-            <div class="card-body">
-                <h2 class="text-center mb-4">My Profile</h2>
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <p><strong>Name:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
-                        <p><strong>Email:</strong> {{ current_user.email }}</p>
-                        <p><strong>Blood Type:</strong> {{ current_user.blood_type or 'Not specified' }}</p>
-                        <p><strong>Role:</strong> {{ current_user.role.capitalize() }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Phone:</strong> {{ current_user.phone or 'Not specified' }}</p>
-                        <p><strong>Address:</strong> {{ current_user.address or 'Not specified' }}</p>
-                        <p><strong>Gender:</strong> {{ current_user.gender or 'Not specified' }}</p>
-                        <p><strong>2FA Status:</strong> {{ 'Enabled' if current_user.totp_enabled else 'Disabled' }}</p>
-                    </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('setup_2fa') }}" class="btn btn-danger">
-                        {% if current_user.totp_enabled %}Manage{% else %}Setup{% endif %} Two-Factor Authentication
-                    </a>
-                </div>
+    <!-- Welcome Banner -->
+    <div class="welcome-section mb-4">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h1 class="text-danger">Welcome, {{ current_user.first_name }}!</h1>
+                <p class="lead">
+                    Thank you for being a blood donor. Your contributions help save lives.
+                </p>
+            </div>
+            <div class="d-none d-md-block">
+                <img src="{{ url_for('static', filename='images/donor-icon.svg') }}" alt="Donor" width="120" height="120">
             </div>
         </div>
     </div>
 
+    <!-- Quick Stats -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Schedule Donation</h5>
-                    <i class="fas fa-calendar-plus fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">Book Now</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-danger h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Total Donations</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">{{ donations|length if donations else 0 }}</h2>
+                        <span class="badge bg-light text-danger ms-2">Units</span>
+                    </div>
+                    <small>Lifetime contribution</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Donation History</h5>
-                    <i class="fas fa-history fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">View History</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-primary h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Lives Impacted</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">{{ (donations|length if donations else 0) * 3 }}</h2>
+                        <span class="badge bg-light text-primary ms-2">People</span>
+                    </div>
+                    <small>Each donation can save up to 3 lives</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Find Centers</h5>
-                    <i class="fas fa-hospital fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">Locate</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-success h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Next Eligible</h6>
+                    {% if donations and donations|length > 0 %}
+                        {% set last_donation = donations|first %}
+                        {% set next_date = (last_donation.donation_date + timedelta(days=56)).strftime('%Y-%m-%d') %}
+                        <div class="d-flex align-items-center">
+                            <h2 class="mb-0">{{ (last_donation.donation_date + timedelta(days=56)).strftime('%b %d') }}</h2>
+                        </div>
+                        <small>{{ (last_donation.donation_date + timedelta(days=56)).strftime('%Y') }}</small>
+                    {% else %}
+                        <div class="d-flex align-items-center">
+                            <h2 class="mb-0">Today</h2>
+                        </div>
+                        <small>You can donate now!</small>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h5 class="card-title">My Impact</h5>
-                    <i class="fas fa-heart fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">View Impact</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-info h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Blood Type</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">{{ current_user.blood_type or 'N/A' }}</h2>
+                    </div>
+                    <small>
+                        {% if current_user.blood_type %}
+                            Universal {{ "donor" if current_user.blood_type == "O-" else "recipient" if current_user.blood_type == "AB+" else "type" }}
+                        {% else %}
+                            Please update your profile
+                        {% endif %}
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">Upcoming Appointments</div>
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center border-danger border-top border-2">
                 <div class="card-body">
+                    <div class="icon-box rounded-circle bg-danger text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-hand-holding-medical fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Donate Blood</h5>
+                    <p class="card-text small">Schedule your next blood donation appointment</p>
+                    <a href="{{ url_for('donate') }}" class="btn btn-danger w-100">Schedule</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-calendar-check fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">My Appointments</h5>
+                    <p class="card-text small">View and manage your donation appointments</p>
+                    <a href="#" class="btn btn-outline-secondary w-100">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-search-location fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Find Blood Banks</h5>
+                    <p class="card-text small">Locate blood banks and donation centers near you</p>
+                    <a href="{{ url_for('blood_banks') }}" class="btn btn-outline-secondary w-100">Find</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-certificate fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Certificates</h5>
+                    <p class="card-text small">Download your donation certificates</p>
+                    <a href="#" class="btn btn-outline-secondary w-100">Certificates</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Donations & Upcoming Appointments -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Donations</h5>
+                    <a href="#" class="btn btn-sm btn-outline-danger">View All</a>
+                </div>
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Blood Center</th>
+                                    <th>Units</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if donations and donations|length > 0 %}
+                                    {% for donation in donations[:5] %}
+                                        <tr>
+                                            <td>{{ donation.donation_date.strftime('%b %d, %Y') }}</td>
+                                            <td>{{ donation.center }}</td>
+                                            <td>{{ donation.units }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if donation.status == 'completed' else 'warning' }}">
+                                                    {{ donation.status.capitalize() }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">
+                                            <div class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i> No donation history found
+                                            </div>
+                                            <a href="{{ url_for('donate') }}" class="btn btn-sm btn-danger mt-2">
+                                                Schedule Your First Donation
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Upcoming Appointments</h5>
+                    <a href="#" class="btn btn-sm btn-outline-danger">Schedule</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -86,7 +204,14 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="4" class="text-center">No upcoming appointments</td>
+                                    <td colspan="4" class="text-center py-3">
+                                        <div class="text-muted">
+                                            <i class="fas fa-calendar-times me-1"></i> No upcoming appointments
+                                        </div>
+                                        <a href="#" class="btn btn-sm btn-danger mt-2">
+                                            Schedule New Appointment
+                                        </a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -94,26 +219,90 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+    </div>
+
+    <!-- Blood Request Matches & Impact -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header">Recent Donations</div>
-                <div class="card-body">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Blood Request Matches</h5>
+                    <a href="{{ url_for('blood_requests') }}" class="btn btn-sm btn-outline-danger">View All</a>
+                </div>
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Location</th>
-                                    <th>Certificate</th>
+                                    <th>Blood Type</th>
+                                    <th>Urgency</th>
+                                    <th>Hospital</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="4" class="text-center">No donation history</td>
+                                    <td colspan="4" class="text-center py-3">
+                                        <div class="text-muted">
+                                            <i class="fas fa-search me-1"></i> No matching requests found
+                                        </div>
+                                        <a href="{{ url_for('blood_requests') }}" class="btn btn-sm btn-danger mt-2">
+                                            Browse All Requests
+                                        </a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Donation Impact</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="icon-box rounded-circle bg-danger text-white p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                            <i class="fas fa-heart fa-lg"></i>
+                        </div>
+                        <h5>Lives Saved</h5>
+                        <div class="display-4 fw-bold text-danger">{{ (donations|length if donations else 0) * 3 }}</div>
+                        <p class="text-muted">Each donation can save up to 3 lives</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Blood Type Compatibility</h6>
+                        <p class="small">Your {{ current_user.blood_type or 'blood' }} can be donated to:</p>
+                        
+                        <div class="d-flex flex-wrap">
+                            {% if current_user.blood_type %}
+                                {% if current_user.blood_type == "O-" %}
+                                    {% set compatible = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] %}
+                                {% elif current_user.blood_type == "O+" %}
+                                    {% set compatible = ["A+", "B+", "AB+", "O+"] %}
+                                {% elif current_user.blood_type == "A-" %}
+                                    {% set compatible = ["A+", "A-", "AB+", "AB-"] %}
+                                {% elif current_user.blood_type == "A+" %}
+                                    {% set compatible = ["A+", "AB+"] %}
+                                {% elif current_user.blood_type == "B-" %}
+                                    {% set compatible = ["B+", "B-", "AB+", "AB-"] %}
+                                {% elif current_user.blood_type == "B+" %}
+                                    {% set compatible = ["B+", "AB+"] %}
+                                {% elif current_user.blood_type == "AB-" %}
+                                    {% set compatible = ["AB+", "AB-"] %}
+                                {% elif current_user.blood_type == "AB+" %}
+                                    {% set compatible = ["AB+"] %}
+                                {% endif %}
+                                
+                                {% for type in compatible %}
+                                    <span class="badge bg-danger m-1">{{ type }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <p>Please update your blood type in your profile.</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>

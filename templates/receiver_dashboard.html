@@ -1,123 +1,357 @@
-
 {% extends "base.html" %}
 
 {% block content %}
 <div class="receiver-dashboard">
-    <div class="container mb-4">
-        <div class="card shadow">
-            <div class="card-body">
-                <h2 class="text-center mb-4">My Profile</h2>
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <p><strong>Name:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
-                        <p><strong>Email:</strong> {{ current_user.email }}</p>
-                        <p><strong>Blood Type:</strong> {{ current_user.blood_type or 'Not specified' }}</p>
-                        <p><strong>Role:</strong> {{ current_user.role.capitalize() }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Phone:</strong> {{ current_user.phone or 'Not specified' }}</p>
-                        <p><strong>Address:</strong> {{ current_user.address or 'Not specified' }}</p>
-                        <p><strong>Gender:</strong> {{ current_user.gender or 'Not specified' }}</p>
-                        <p><strong>2FA Status:</strong> {{ 'Enabled' if current_user.totp_enabled else 'Disabled' }}</p>
-                    </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <a href="{{ url_for('setup_2fa') }}" class="btn btn-danger">
-                        {% if current_user.totp_enabled %}Manage{% else %}Setup{% endif %} Two-Factor Authentication
-                    </a>
-                </div>
+    <!-- Welcome Banner -->
+    <div class="welcome-section mb-4">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h1 class="text-danger">Welcome, {{ current_user.first_name }}!</h1>
+                <p class="lead">
+                    We're here to help you find the blood you need. Your health is our priority.
+                </p>
+            </div>
+            <div class="d-none d-md-block">
+                <img src="{{ url_for('static', filename='images/receiver-icon.svg') }}" alt="Receiver" width="120" height="120">
             </div>
         </div>
     </div>
 
+    <!-- Quick Stats -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Request Blood</h5>
-                    <i class="fas fa-hand-holding-medical fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">New Request</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-danger h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Active Requests</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">{{ requests|selectattr('status', 'equalto', 'pending')|list|length if requests else 0 }}</h2>
+                        <span class="badge bg-light text-danger ms-2">Pending</span>
+                    </div>
+                    <small>Currently processing</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Help and Support</h5>
-                    <i class="fas fa-headset fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">Get Help</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-success h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Fulfilled Requests</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">{{ requests|selectattr('status', 'equalto', 'fulfilled')|list|length if requests else 0 }}</h2>
+                        <span class="badge bg-light text-success ms-2">Complete</span>
+                    </div>
+                    <small>Successfully fulfilled</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Blood Bank</h5>
-                    <i class="fas fa-hospital fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">Find</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-primary h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Total Units</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">
+                            {% if requests %}
+                                {% set total_units = 0 %}
+                                {% for req in requests %}
+                                    {% set total_units = total_units + req.units_needed %}
+                                {% endfor %}
+                                {{ total_units }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h2>
+                        <span class="badge bg-light text-primary ms-2">Units</span>
+                    </div>
+                    <small>Blood units requested</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Track Requests</h5>
-                    <i class="fas fa-tasks fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light w-100">View All</a>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card stats-card-info h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase mb-3">Blood Type</h6>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">{{ current_user.blood_type or 'N/A' }}</h2>
+                    </div>
+                    <small>
+                        {% if current_user.blood_type %}
+                            Universal {{ "donor" if current_user.blood_type == "O-" else "recipient" if current_user.blood_type == "AB+" else "type" }}
+                        {% else %}
+                            Please update your profile
+                        {% endif %}
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Active Blood Requests</div>
+    <!-- Action Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center border-danger border-top border-2">
                 <div class="card-body">
+                    <div class="icon-box rounded-circle bg-danger text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-hand-holding-medical fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Request Blood</h5>
+                    <p class="card-text small">Create a new blood request for yourself or others</p>
+                    <a href="{{ url_for('request_blood') }}" class="btn btn-danger w-100">New Request</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-clipboard-list fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">My Requests</h5>
+                    <p class="card-text small">View and manage your blood requests</p>
+                    <a href="#requestsTable" class="btn btn-outline-secondary w-100">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-search-location fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Find Blood Banks</h5>
+                    <p class="card-text small">Locate blood banks and donation centers near you</p>
+                    <a href="{{ url_for('blood_banks') }}" class="btn btn-outline-secondary w-100">Find</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-question-circle fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Help & Support</h5>
+                    <p class="card-text small">Get assistance with your blood requests</p>
+                    <a href="{{ url_for('help_support') }}" class="btn btn-outline-secondary w-100">Get Help</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Blood Requests -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center" id="requestsTable">
+                    <h5 class="mb-0">Active Blood Requests</h5>
+                    <a href="{{ url_for('request_blood') }}" class="btn btn-sm btn-outline-danger">New Request</a>
+                </div>
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>Request ID</th>
                                     <th>Blood Type</th>
+                                    <th>Units</th>
+                                    <th>Urgency</th>
                                     <th>Status</th>
-                                    <th>Created Date</th>
-                                    <th>Action</th>
+                                    <th>Created</th>
+                                    <th>Required By</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td colspan="5" class="text-center">No active requests</td>
-                                </tr>
+                                {% if requests and requests|length > 0 %}
+                                    {% for request in requests %}
+                                        <tr>
+                                            <td>#{{ request.id }}</td>
+                                            <td>
+                                                <span class="badge bg-danger">{{ request.blood_type }}</span>
+                                            </td>
+                                            <td>{{ request.units_needed }}</td>
+                                            <td>
+                                                {% if request.urgency == 'emergency' %}
+                                                    <span class="badge bg-danger">Emergency</span>
+                                                {% elif request.urgency == 'urgent' %}
+                                                    <span class="badge bg-warning">Urgent</span>
+                                                {% else %}
+                                                    <span class="badge bg-info">Normal</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if request.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif request.status == 'fulfilled' %}
+                                                    <span class="badge bg-success">Fulfilled</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ request.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ request.created_at.strftime('%b %d, %Y') }}</td>
+                                            <td>{{ request.required_by.strftime('%b %d, %Y') if request.required_by else 'Not specified' }}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="#" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Edit Request">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-3">
+                                            <div class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i> No blood requests found
+                                            </div>
+                                            <a href="{{ url_for('request_blood') }}" class="btn btn-sm btn-danger mt-2">
+                                                Create New Request
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+    </div>
+
+    <!-- Blood Availability and Donor Matches -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-header">Blood Availability</div>
+                <div class="card-header">
+                    <h5 class="mb-0">Blood Availability</h5>
+                </div>
                 <div class="card-body">
+                    <p class="text-muted small mb-3">Current blood stock levels at nearby blood banks:</p>
+
                     <div class="blood-type-status">
-                        <div class="blood-type mb-2">
-                            <span class="badge bg-danger">A+</span>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><span class="badge bg-danger">A+</span> A Positive</span>
+                                <span class="small">65 units</span>
+                            </div>
                             <div class="progress">
                                 <div class="progress-bar bg-success" style="width: 70%"></div>
                             </div>
                         </div>
-                        <div class="blood-type mb-2">
-                            <span class="badge bg-danger">B+</span>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><span class="badge bg-danger">B+</span> B Positive</span>
+                                <span class="small">45 units</span>
+                            </div>
                             <div class="progress">
                                 <div class="progress-bar bg-warning" style="width: 45%"></div>
                             </div>
                         </div>
-                        <div class="blood-type mb-2">
-                            <span class="badge bg-danger">O+</span>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><span class="badge bg-danger">O+</span> O Positive</span>
+                                <span class="small">85 units</span>
+                            </div>
                             <div class="progress">
-                                <div class="progress-bar bg-danger" style="width: 20%"></div>
+                                <div class="progress-bar bg-success" style="width: 85%"></div>
                             </div>
                         </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><span class="badge bg-danger">AB+</span> AB Positive</span>
+                                <span class="small">25 units</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-danger" style="width: 25%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><span class="badge bg-danger">O-</span> O Negative</span>
+                                <span class="small">55 units</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" style="width: 55%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('blood_banks') }}" class="btn btn-outline-danger btn-sm">View All Blood Banks</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Blood Type Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Your {{ current_user.blood_type or 'unspecified' }} blood type can receive from:</p>
+                    
+                    <div class="blood-compatibility mb-4">
+                        {% if current_user.blood_type %}
+                            {% if current_user.blood_type == "O-" %}
+                                {% set compatible = ["O-"] %}
+                            {% elif current_user.blood_type == "O+" %}
+                                {% set compatible = ["O-", "O+"] %}
+                            {% elif current_user.blood_type == "A-" %}
+                                {% set compatible = ["O-", "A-"] %}
+                            {% elif current_user.blood_type == "A+" %}
+                                {% set compatible = ["O-", "O+", "A-", "A+"] %}
+                            {% elif current_user.blood_type == "B-" %}
+                                {% set compatible = ["O-", "B-"] %}
+                            {% elif current_user.blood_type == "B+" %}
+                                {% set compatible = ["O-", "O+", "B-", "B+"] %}
+                            {% elif current_user.blood_type == "AB-" %}
+                                {% set compatible = ["O-", "A-", "B-", "AB-"] %}
+                            {% elif current_user.blood_type == "AB+" %}
+                                {% set compatible = ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"] %}
+                            {% endif %}
+                            
+                            <div class="d-flex flex-wrap mb-3">
+                                {% for type in compatible %}
+                                    <span class="badge bg-danger m-1 p-2">{{ type }}</span>
+                                {% endfor %}
+                            </div>
+                                                        
+                            <div class="blood-type-info">
+                                <div class="card bg-light">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title">About {{ current_user.blood_type }} Blood Type</h6>
+                                        {% if current_user.blood_type == "O-" %}
+                                            <p class="small">O- is the universal donor blood type. It can be given to anyone, but can only receive O- blood.</p>
+                                        {% elif current_user.blood_type == "AB+" %}
+                                            <p class="small">AB+ is the universal recipient blood type. It can receive blood from any type, but can only donate to other AB+.</p>
+                                        {% elif current_user.blood_type == "O+" %}
+                                            <p class="small">O+ is the most common blood type. It can donate to all positive blood types.</p>
+                                        {% else %}
+                                            <p class="small">Your {{ current_user.blood_type }} blood type has specific compatibility requirements.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Please update your blood type in your profile to see compatibility information.
+                            </div>
+                            <div class="text-center">
+                                <a href="{{ url_for('profile') }}" class="btn btn-danger btn-sm">Update Profile</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('request_blood') }}" class="btn btn-danger">Request Blood Now</a>
                     </div>
                 </div>
             </div>

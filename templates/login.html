@@ -1,27 +1,89 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body p-5">
-                <h1 class="text-danger text-center mb-4">WELCOME</h1>
-                <form method="POST">
-                    <div class="mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="Email" required>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-5 bg-danger text-white d-none d-md-block">
+                        <div class="p-4 h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <h3 class="fw-bold mb-4">Welcome to BloodBridge</h3>
+                                <p>Connect, donate, and make a difference in someone's life today.</p>
+                            </div>
+                            
+                            <div class="text-center mb-4">
+                                <div class="blood-drop-animation">
+                                    <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M60 5 C60 5 100 60 100 90 C100 106.5 82 120 60 120 C38 120 20 106.5 20 90 C20 60 60 5 60 5" fill="white" opacity="0.8"/>
+                                        <text x="60" y="95" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#dc3545">LIFE</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="small text-white-50">
+                                <p class="mb-0">Every 2 seconds, someone needs blood.</p>
+                                <p class="mb-0">One donation can save up to 3 lives.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" name="password" placeholder="Password" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger w-100 mb-3">Login</button>
                     
-                    <div class="text-center">
-                        <a href="#" class="text-danger">Forgot your Password?</a>
-                        <p class="mt-3">Don't have an account? 
-                            <a href="{{ url_for('register') }}" class="btn btn-danger">Register</a>
-                        </p>
+                    <div class="col-md-7">
+                        <div class="p-4 p-lg-5">
+                            <div class="text-center mb-4">
+                                <h2 class="fw-bold text-danger">Sign In</h2>
+                                <p class="text-muted">Access your BloodBridge account</p>
+                            </div>
+                            
+                            <form method="POST" class="needs-validation" novalidate>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-envelope text-muted"></i>
+                                        </span>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-lock text-muted"></i>
+                                        </span>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                    <div class="text-end mt-1">
+                                        <a href="#" class="text-decoration-none small text-danger">Forgot Password?</a>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                        <label class="form-check-label" for="remember">Remember me</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="btn btn-danger btn-lg">Sign In</button>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <p class="mb-0">Don't have an account? <a href="{{ url_for('register') }}" class="text-decoration-none text-danger">Register</a></p>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </form>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i> Your data is encrypted and securely stored.
+                </p>
             </div>
         </div>
     </div>

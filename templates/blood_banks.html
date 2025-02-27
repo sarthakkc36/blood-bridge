@@ -9,119 +9,639 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Find Blood Banks</h5>
-                    <div class="mb-3">
-                        <input type="text" id="search-location" class="form-control" placeholder="Enter your location">
+                    
+                    <!-- Current Location Button -->
+                    <div class="d-grid mb-3">
+                        <button id="current-location-btn" class="btn btn-outline-primary">
+                            <i class="fas fa-location-arrow me-2"></i>Use My Current Location
+                        </button>
+                        <div id="location-status" class="small text-muted mt-1 text-center d-none">
+                            <div class="spinner-border spinner-border-sm text-primary me-1" role="status"></div>
+                            Getting your location...
+                        </div>
                     </div>
-                    <button onclick="searchNearbyBloodBanks()" class="btn btn-danger">Search</button>
+                    
+                    <!-- Search by Location Input -->
+                    <div class="location-search-wrapper mb-3">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-location" class="form-control" placeholder="Or search a location in Nepal">
+                    </div>
+                    <button id="search-button" class="btn btn-danger w-100">Search</button>
                 </div>
             </div>
 
-            <div id="blood-banks-list" class="list-group mb-4">
-                <!-- Blood banks will be listed here -->
+            <!-- Nearest Blood Banks Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Nearest Blood Banks</h6>
+                    <span class="badge bg-danger" id="nearest-count">0</span>
+                </div>
+                <div id="nearest-blood-banks" class="list-group list-group-flush">
+                    <div class="p-3 text-center text-muted">
+                        <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                        <p>Use your current location to find the nearest blood banks</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Blood Banks List -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">All Blood Banks</h6>
+                </div>
+                <div id="blood-banks-list" class="list-group list-group-flush">
+                    <!-- Blood banks will be listed here dynamically -->
+                </div>
             </div>
         </div>
 
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <div id="map" style="height: 500px;"></div>
+                    <div id="map" style="height: 500px; border-radius: 4px;"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- GoMaps Pro CSS and JS -->
-<link href="https://cdn.gomap.pro/v1/style.css" rel="stylesheet">
-<script src="https://cdn.gomap.pro/v1/gomap.js?key=AlzaSyb9PBxwGmEzhu2ZaEkN813lJbFF5PwGy7B"></script>
+<!-- Include Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
 
 <script>
-let map;
-let markers = [];
+// Nepal blood bank data - Focused on Kathmandu and major cities
 const bloodBanks = [
-    { name: 'Central Blood Bank', position: [37.7749, -122.4194], address: '123 Main St, San Francisco, CA' },
-    { name: 'City Blood Center', position: [37.7833, -122.4167], address: '456 Market St, San Francisco, CA' },
-    { name: 'Red Cross Donation Center', position: [37.7879, -122.4074], address: '789 Mission St, San Francisco, CA' }
+    { name: 'Nepal Red Cross Society Central Blood Transfusion Service', position: [27.7065, 85.3304], address: 'Pradarshani Marg, Kathmandu', phone: '01-4225344' },
+    { name: 'Teaching Hospital Blood Bank', position: [27.7361, 85.3311], address: 'Maharajgunj, Kathmandu', phone: '01-4412303' },
+    { name: 'Bhaktapur Blood Bank', position: [27.6716, 85.4295], address: 'Bhaktapur', phone: '01-6611661' },
+    { name: 'Patan Hospital Blood Bank', position: [27.6688, 85.3191], address: 'Patan, Lalitpur', phone: '01-5522295' },
+    { name: 'Nepal Mediciti Hospital Blood Bank', position: [27.6546, 85.3078], address: 'Bhaisepati, Lalitpur', phone: '01-4217766' },
+    { name: 'B&B Hospital Blood Bank', position: [27.6683, 85.3277], address: 'Gwarko, Lalitpur', phone: '01-5533206' },
+    { name: 'Grande Hospital Blood Bank', position: [27.6953, 85.3192], address: 'Dhapasi, Kathmandu', phone: '01-5159266' },
+    { name: 'Pokhara Red Cross Blood Bank', position: [28.2071, 83.9857], address: 'Pokhara', phone: '061-520726' },
+    { name: 'Bir Hospital Blood Bank', position: [27.7046, 85.3142], address: 'Kanti Path, Kathmandu', phone: '01-4221119' },
+    { name: 'Chitwan Red Cross Blood Bank', position: [27.6818, 84.4309], address: 'Bharatpur, Chitwan', phone: '056-520626' },
+    { name: 'Nepalgunj Blood Bank', position: [28.0543, 81.6143], address: 'Nepalgunj, Banke', phone: '081-520212' },
+    { name: 'Biratnagar Blood Bank', position: [26.4585, 87.2675], address: 'Biratnagar, Morang', phone: '021-523094' },
+    { name: 'Dharan Blood Bank', position: [26.8139, 87.2835], address: 'Dharan, Sunsari', phone: '025-520427' },
+    { name: 'Butwal Blood Bank', position: [27.6866, 83.4645], address: 'Butwal, Rupandehi', phone: '071-540054' },
+    { name: 'Hetauda Blood Bank', position: [27.4290, 85.0320], address: 'Hetauda, Makwanpur', phone: '057-520417' }
 ];
 
-function initMap() {
-    // Initialize the map centered on San Francisco
-    map = new GoMap('map', {
-        center: [37.7749, -122.4194],
-        zoom: 12,
-        style: 'default'
-    });
+let map;
+let markers = [];
+let userMarker = null;
+let userLocationCircle = null;
+let userPosition = null;
 
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+    
+    // Add search functionality
+    document.getElementById('search-button').addEventListener('click', searchLocation);
+    document.getElementById('search-location').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchLocation();
+        }
+    });
+    
+    // Add current location functionality
+    document.getElementById('current-location-btn').addEventListener('click', getUserLocation);
+});
+
+function initMap() {
+    // Initialize the map centered on Kathmandu, Nepal
+    map = L.map('map').setView([27.7172, 85.3240], 12);
+    
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Create custom icon for blood banks
+    const bloodIcon = L.divIcon({
+        html: `<div class="blood-marker"><i class="fas fa-tint"></i></div>`,
+        className: '',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
+    });
+    
     // Add markers for blood banks
     bloodBanks.forEach(bloodBank => {
-        addMarker(bloodBank);
+        addMarker(bloodBank, bloodIcon);
     });
-
+    
+    // Add a legend to the map
+    addMapLegend();
+    
     // Update list
     updateBloodBanksList();
 }
 
-function addMarker(bloodBank) {
-    const marker = new GoMap.Marker({
-        position: bloodBank.position,
-        map: map,
+function addMarker(bloodBank, icon) {
+    const marker = L.marker(bloodBank.position, {
         title: bloodBank.name,
-        icon: {
-            url: '/static/images/blood-drop-marker.svg',
-            size: [32, 32]
-        }
-    });
-
-    const popup = new GoMap.Popup({
-        content: `
-            <div class="p-2">
-                <h5>${bloodBank.name}</h5>
-                <p>${bloodBank.address}</p>
-                <a href="https://www.gomap.pro/directions?to=${bloodBank.position[0]},${bloodBank.position[1]}" 
+        icon: icon || L.Icon.Default()
+    }).addTo(map);
+    
+    // Create popup content
+    const popupContent = `
+        <div class="p-2">
+            <h5 class="mb-1" style="color: #dc3545;">${bloodBank.name}</h5>
+            <p class="mb-2">${bloodBank.address}</p>
+            <p class="mb-2"><i class="fas fa-phone-alt me-1"></i> ${bloodBank.phone || 'N/A'}</p>
+            <div class="d-grid">
+                <a href="https://www.openstreetmap.org/directions?from=&to=${bloodBank.position[0]}%2C${bloodBank.position[1]}" 
                    target="_blank" class="btn btn-sm btn-danger">Get Directions</a>
             </div>
-        `
+        </div>
+    `;
+    
+    // Bind popup to marker
+    marker.bindPopup(popupContent);
+    
+    // Add marker to array for reference
+    markers.push({
+        marker: marker,
+        data: bloodBank
     });
+}
 
-    marker.on('click', () => {
-        popup.open(map, marker);
-    });
-
-    markers.push(marker);
+function addMapLegend() {
+    // Create a legend control
+    const legend = L.control({position: 'bottomright'});
+    
+    legend.onAdd = function(map) {
+        const div = L.DomUtil.create('div', 'map-legend');
+        div.innerHTML = `
+            <h6>Map Legend</h6>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #dc3545;"></div>
+                <span>Blood Bank</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #007bff;"></div>
+                <span>Your Location</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: rgba(0, 123, 255, 0.2); border: 1px solid #007bff;"></div>
+                <span>Search Radius</span>
+            </div>
+        `;
+        return div;
+    };
+    
+    legend.addTo(map);
 }
 
 function updateBloodBanksList() {
     const listContainer = document.getElementById('blood-banks-list');
     listContainer.innerHTML = '';
-
-    bloodBanks.forEach(bloodBank => {
+    
+    bloodBanks.forEach((bloodBank, index) => {
         const item = document.createElement('a');
-        item.className = 'list-group-item list-group-item-action';
+        item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-start';
         item.innerHTML = `
-            <h6 class="mb-1">${bloodBank.name}</h6>
-            <p class="mb-1 small">${bloodBank.address}</p>
+            <div>
+                <h6 class="mb-1">${bloodBank.name}</h6>
+                <p class="mb-1 small text-muted">${bloodBank.address}</p>
+                <p class="mb-0 small text-muted"><i class="fas fa-phone-alt me-1"></i> ${bloodBank.phone || 'N/A'}</p>
+            </div>
+            <span class="badge bg-danger rounded-pill">${index + 1}</span>
         `;
+        
+        // Add event listener to center map on blood bank when clicked
         item.addEventListener('click', () => {
-            map.setCenter(bloodBank.position);
-            map.setZoom(15);
+            map.setView(bloodBank.position, 15);
+            markers[index].marker.openPopup();
+            
+            // Add active class to clicked item and remove from others
+            document.querySelectorAll('#blood-banks-list .list-group-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            item.classList.add('active');
         });
+        
         listContainer.appendChild(item);
     });
 }
 
-function searchNearbyBloodBanks() {
+function searchLocation() {
     const searchInput = document.getElementById('search-location').value;
-    // In a real application, this would make an API call to search for nearby blood banks
-    GoMap.Geocoder.search(searchInput).then(results => {
-        if (results.length > 0) {
-            const location = results[0].position;
-            map.setCenter(location);
-            map.setZoom(13);
+    if (searchInput.trim() === '') return;
+    
+    // Show a loading indicator
+    const listContainer = document.getElementById('blood-banks-list');
+    listContainer.innerHTML = '<div class="p-3 text-center"><div class="spinner-border text-danger" role="status"></div><p class="mt-2">Searching...</p></div>';
+    
+    // Simplified search function for Nepal locations
+    const searchTerms = searchInput.toLowerCase().split(/\s+/);
+    
+    // Filter blood banks based on search terms
+    const filteredBanks = bloodBanks.filter(bank => {
+        const bankText = (bank.name + ' ' + bank.address).toLowerCase();
+        return searchTerms.some(term => bankText.includes(term));
+    });
+    
+    // Common Nepal locations for improved search
+    const commonLocations = [
+        { name: 'Kathmandu', position: [27.7172, 85.3240] },
+        { name: 'Pokhara', position: [28.2096, 83.9856] },
+        { name: 'Lalitpur', position: [27.6644, 85.3187] },
+        { name: 'Bhaktapur', position: [27.6710, 85.4298] },
+        { name: 'Biratnagar', position: [26.4513, 87.2701] },
+        { name: 'Birgunj', position: [27.0104, 84.8770] },
+        { name: 'Chitwan', position: [27.5818, 84.4309] },
+        { name: 'Butwal', position: [27.7006, 83.4482] },
+        { name: 'Dharan', position: [26.8153, 87.2830] },
+        { name: 'Nepalgunj', position: [28.0650, 81.6167] }
+    ];
+    
+    // Check if search matches a common location
+    const matchedLocation = commonLocations.find(loc => 
+        loc.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        searchInput.toLowerCase().includes(loc.name.toLowerCase())
+    );
+    
+    setTimeout(() => {
+        if (matchedLocation) {
+            // Center map on the matched location
+            map.setView(matchedLocation.position, 12);
+            
+            // Filter blood banks near this location (in a real app, this would use distance calculation)
+            const nearbyBanks = bloodBanks;
+            
+            updateSearchResults(nearbyBanks, searchInput);
+        } else if (filteredBanks.length > 0) {
+            // Center map on the first result
+            map.setView(filteredBanks[0].position, 13);
+            
+            // Update the list with filtered results
+            updateSearchResults(filteredBanks, searchInput);
+        } else {
+            // No results found
+            listContainer.innerHTML = `<div class="p-3 text-center text-muted">
+                <i class="fas fa-info-circle fa-2x mb-2"></i>
+                <p>No blood banks found matching "${searchInput}".</p>
+                <p>Try searching with a different term or location.</p>
+            </div>`;
         }
+    }, 800); // Simulate search delay
+}
+
+function getUserLocation() {
+    // Show loading status
+    const statusElement = document.getElementById('location-status');
+    statusElement.classList.remove('d-none');
+    
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+        showLocationError("Geolocation is not supported by your browser");
+        return;
+    }
+    
+    // Get current position
+    navigator.geolocation.getCurrentPosition(
+        // Success callback
+        function(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            userPosition = [latitude, longitude];
+            
+            // Update the map
+            updateMapWithUserLocation(userPosition);
+            
+            // Find nearby blood banks
+            findNearbyBloodBanks(userPosition);
+            
+            // Hide loading status
+            statusElement.classList.add('d-none');
+        },
+        // Error callback
+        function(error) {
+            let errorMessage = "Unable to retrieve your location";
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "Location access was denied. Please check your browser settings.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Location information is unavailable at this time.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "The request to get your location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    errorMessage = "An unknown error occurred.";
+                    break;
+            }
+            
+            showLocationError(errorMessage);
+        },
+        // Options
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+    );
+}
+
+function showLocationError(message) {
+    const statusElement = document.getElementById('location-status');
+    statusElement.innerHTML = `<i class="fas fa-exclamation-triangle text-warning me-1"></i> ${message}`;
+    statusElement.classList.remove('d-none');
+    setTimeout(() => {
+        statusElement.classList.add('d-none');
+    }, 5000);
+}
+
+function updateMapWithUserLocation(position) {
+    // Remove existing user marker and circle if they exist
+    if (userMarker) {
+        map.removeLayer(userMarker);
+    }
+    
+    if (userLocationCircle) {
+        map.removeLayer(userLocationCircle);
+    }
+    
+    // Create custom user location marker
+    const userIcon = L.divIcon({
+        html: `<div class="user-marker"><i class="fas fa-user-circle"></i></div>`,
+        className: '',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    
+    // Add user marker
+    userMarker = L.marker(position, {
+        icon: userIcon
+    }).addTo(map);
+    
+    // Add circle to show approximately 5km radius
+    userLocationCircle = L.circle(position, {
+        radius: 5000, // 5km in meters
+        color: '#007bff',
+        fillColor: '#007bff',
+        fillOpacity: 0.1,
+        weight: 1
+    }).addTo(map);
+    
+    // Set map view to user location
+    map.setView(position, 12);
+    
+    // Add popup to user marker
+    userMarker.bindPopup("<b>You are here</b>").openPopup();
+}
+
+function findNearbyBloodBanks(userPosition) {
+    // Calculate distance between user and each blood bank
+    const nearbyBanks = bloodBanks.map(bank => {
+        const distance = calculateDistance(
+            userPosition[0], userPosition[1],
+            bank.position[0], bank.position[1]
+        );
+        
+        return {
+            ...bank,
+            distance: distance
+        };
+    })
+    .sort((a, b) => a.distance - b.distance) // Sort by distance
+    .slice(0, 5); // Get top 5 closest
+    
+    // Update nearest blood banks list
+    updateNearestBloodBanksList(nearbyBanks);
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    // Haversine formula to calculate distance between two points on Earth
+    const R = 6371; // Radius of the Earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    const distance = R * c; // Distance in km
+    return distance;
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI/180);
+}
+
+function updateNearestBloodBanksList(nearbyBanks) {
+    const listContainer = document.getElementById('nearest-blood-banks');
+    const countElement = document.getElementById('nearest-count');
+    
+    // Update count badge
+    countElement.textContent = nearbyBanks.length;
+    
+    // Clear current list
+    listContainer.innerHTML = '';
+    
+    if (nearbyBanks.length === 0) {
+        listContainer.innerHTML = `
+            <div class="p-3 text-center text-muted">
+                <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                <p>No blood banks found nearby.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Add each nearby blood bank to the list
+    nearbyBanks.forEach((bank, index) => {
+        const item = document.createElement('a');
+        item.className = 'list-group-item list-group-item-action';
+        item.innerHTML = `
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">${bank.name}</h6>
+                <span class="badge bg-primary rounded-pill">${bank.distance.toFixed(1)} km</span>
+            </div>
+            <p class="mb-1 small text-muted">${bank.address}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted"><i class="fas fa-phone-alt me-1"></i> ${bank.phone || 'N/A'}</small>
+                <button class="btn btn-sm btn-outline-danger directions-btn" 
+                        data-lat="${bank.position[0]}" 
+                        data-lng="${bank.position[1]}">
+                    <i class="fas fa-directions me-1"></i> Directions
+                </button>
+            </div>
+        `;
+        
+        // Add event listener to center map on this blood bank when clicked
+        item.addEventListener('click', function(e) {
+            // Don't trigger if the directions button was clicked
+            if (e.target.closest('.directions-btn')) return;
+            
+            const bankIndex = bloodBanks.findIndex(b => b.name === bank.name);
+            if (bankIndex !== -1) {
+                map.setView(bank.position, 15);
+                markers[bankIndex].marker.openPopup();
+            }
+        });
+        
+        listContainer.appendChild(item);
+    });
+    
+    // Add event listeners to all direction buttons
+    document.querySelectorAll('.directions-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const lat = this.getAttribute('data-lat');
+            const lng = this.getAttribute('data-lng');
+            const url = `https://www.openstreetmap.org/directions?from=${userPosition[0]},${userPosition[1]}&to=${lat},${lng}`;
+            window.open(url, '_blank');
+        });
     });
 }
 
-// Initialize the map when the page loads
-window.onload = initMap;
+function updateSearchResults(results, searchTerm) {
+    const listContainer = document.getElementById('blood-banks-list');
+    
+    if (results.length > 0) {
+        // Update the list with filtered results
+        listContainer.innerHTML = '';
+        results.forEach((bank, index) => {
+            const item = document.createElement('a');
+            item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-start';
+            
+            // Highlight matching text
+            let bankName = bank.name;
+            let bankAddress = bank.address;
+            
+            if (searchTerm) {
+                const highlightTerm = (text) => {
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    return text.replace(regex, '<mark>$1</mark>');
+                };
+                
+                bankName = highlightTerm(bank.name);
+                bankAddress = highlightTerm(bank.address);
+            }
+            
+            item.innerHTML = `
+                <div>
+                    <h6 class="mb-1">${bankName}</h6>
+                    <p class="mb-1 small text-muted">${bankAddress}</p>
+                    <p class="mb-0 small text-muted"><i class="fas fa-phone-alt me-1"></i> ${bank.phone || 'N/A'}</p>
+                </div>
+                <span class="badge bg-danger rounded-pill">${index + 1}</span>
+            `;
+            
+            // Add event listener to center map on blood bank when clicked
+            const bankIndex = bloodBanks.findIndex(b => b.name === bank.name);
+            item.addEventListener('click', () => {
+                map.setView(bank.position, 15);
+                markers[bankIndex].marker.openPopup();
+                
+                // Add active class to clicked item
+                document.querySelectorAll('#blood-banks-list .list-group-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+                item.classList.add('active');
+            });
+            
+            listContainer.appendChild(item);
+        });
+    } else {
+        listContainer.innerHTML = `<div class="p-3 text-center text-muted">
+            <i class="fas fa-info-circle fa-2x mb-2"></i>
+            <p>No blood banks found matching "${searchTerm}".</p>
+            <p>Try searching with a different term or location.</p>
+        </div>`;
+    }
+}
 </script>
+
+<style>
+    .blood-marker i {
+        font-size: 25px;
+        color: #dc3545;
+        text-shadow: 0 0 3px #fff;
+        animation: pulse 2s infinite;
+    }
+    .user-marker i {
+        font-size: 30px;
+        color: #007bff;
+        text-shadow: 0 0 3px #fff;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    .leaflet-popup-content-wrapper {
+        border-radius: 8px;
+    }
+    .leaflet-popup-content {
+        margin: 12px;
+    }
+    .map-legend {
+        background: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    .map-legend h6 {
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .map-legend .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+    .map-legend .legend-color {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        border-radius: 50%;
+    }
+    mark {
+        background-color: rgba(220, 53, 69, 0.2);
+        padding: 1px 2px;
+        border-radius: 2px;
+    }
+    .location-search-wrapper {
+        position: relative;
+    }
+    .location-search-wrapper i {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    .location-search-wrapper input {
+        padding-left: 35px;
+    }
+    #current-location-btn {
+        transition: all 0.2s ease;
+    }
+    #current-location-btn:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    .directions-btn {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+</style>
 {% endblock %}

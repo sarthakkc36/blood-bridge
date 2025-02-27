@@ -1,98 +1,261 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row align-items-center">
-    <div class="col-md-6">
-        <h1 class="display-4 text-danger mb-4">Save Lives Through Blood Donation</h1>
-        <p class="lead text-muted">
-            Join our blood donation community to help save lives. Whether you're a donor or in need of blood, 
-            we're here to connect and support you.
-        </p>
-        {% if not current_user.is_authenticated %}
-            <a href="{{ url_for('register') }}" class="btn btn-danger btn-lg mb-4">Register Now</a>
-        {% endif %}
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 pe-lg-5">
+            <h1 class="display-4 fw-bold text-danger mb-3">Save Lives Through Blood Donation</h1>
+            <p class="lead mb-4">
+                Join our community of heroes who make a difference. Whether you're a donor or in need of blood, 
+                we're here to connect and support you every step of the way.
+            </p>
+            {% if not current_user.is_authenticated %}
+                <div class="d-grid gap-2 d-md-flex mb-4">
+                    <a href="{{ url_for('register') }}" class="btn btn-danger btn-lg px-4 me-md-2">Register Now</a>
+                    <a href="{{ url_for('eligibility_check') }}" class="btn btn-outline-danger btn-lg px-4">Check Eligibility</a>
+                </div>
+            {% else %}
+                <div class="d-grid gap-2 d-md-flex mb-4">
+                    <a href="{{ url_for(current_user.role + '_dashboard') }}" class="btn btn-danger btn-lg px-4 me-md-2">Go to Dashboard</a>
+                    <a href="{{ url_for('donation_tips') }}" class="btn btn-outline-danger btn-lg px-4">Donation Tips</a>
+                </div>
+            {% endif %}
 
-        <div class="row mt-5">
-            <div class="col-md-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-user-plus fa-2x text-danger me-3"></i>
-                    <div>
-                        <h5 class="mb-1">For Donors</h5>
-                        <p class="mb-0">Register and schedule your blood donation</p>
+            <div class="row mt-4">
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3">
+                            <i class="fas fa-user-plus text-danger"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">For Donors</h5>
+                            <p class="mb-0 text-muted small">Register and schedule your donation</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-heartbeat fa-2x text-danger me-3"></i>
-                    <div>
-                        <h5 class="mb-1">For Recipients</h5>
-                        <p class="mb-0">Request blood and find matching donors</p>
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3">
+                            <i class="fas fa-heartbeat text-danger"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">For Recipients</h5>
+                            <p class="mb-0 text-muted small">Request blood and find matching donors</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-hospital fa-2x text-danger me-3"></i>
-                    <div>
-                        <h5 class="mb-1">Blood Banks</h5>
-                        <p class="mb-0">Find blood banks near you</p>
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3">
+                            <i class="fas fa-hospital text-danger"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Blood Banks</h5>
+                            <p class="mb-0 text-muted small">Find blood banks near you</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-chart-line fa-2x text-danger me-3"></i>
-                    <div>
-                        <h5 class="mb-1">Track Requests</h5>
-                        <p class="mb-0">Monitor your donation or request status</p>
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-light rounded-circle p-3 me-3">
+                            <i class="fas fa-chart-line text-danger"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Track Requests</h5>
+                            <p class="mb-0 text-muted small">Monitor your donation or request status</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-6">
-        <div class="position-relative">
-            <img src="{{ url_for('static', filename='images/blood-donation.svg') }}" class="img-fluid rounded shadow" alt="Blood Donation">
-            <div class="position-absolute top-0 end-0 bg-white rounded-circle p-3 shadow-sm">
-                <i class="fas fa-tint fa-3x text-danger"></i>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <div class="position-relative">
+                <img src="{{ url_for('static', filename='images/blood-donation.svg') }}" class="img-fluid rounded shadow-lg" alt="Blood Donation">
+                <div class="position-absolute top-0 end-0 bg-white rounded-circle p-3 shadow-sm animate-pulse">
+                    <i class="fas fa-tint fa-3x text-danger"></i>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-12">
-        <h2 class="text-center text-danger mb-4">Why Donate Blood?</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-users fa-3x text-danger mb-3"></i>
-                        <h5 class="card-title">Save Lives</h5>
-                        <p class="card-text">One donation can save up to three lives. Be a hero today.</p>
+<!-- Impact Stats Section -->
+<div class="container mb-5">
+    <div class="row text-center">
+        <div class="col-12 mb-4">
+            <h2 class="text-danger">Our Impact</h2>
+            <p class="lead">Together, we're making a difference in countless lives</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="counter-box">
+                <div class="counter" data-count="5000">0</div>
+                <div class="counter-title">Donors Registered</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="counter-box">
+                <div class="counter" data-count="15000">0</div>
+                <div class="counter-title">Lives Saved</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="counter-box">
+                <div class="counter" data-count="200">0</div>
+                <div class="counter-title">Blood Banks</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="counter-box">
+                <div class="counter" data-count="1200">0</div>
+                <div class="counter-title">Successful Matches</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Why Donate Section -->
+<div class="container bg-light py-5 px-4 rounded-3 mb-5">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h2 class="text-danger mb-3">Why Donate Blood?</h2>
+            <p class="lead">Your donation can make a powerful difference</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="icon-box bg-danger text-white rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-users fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Save Lives</h5>
+                    <p class="card-text">One donation can save up to three lives. Be a hero today.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="icon-box bg-danger text-white rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-clock fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Quick Process</h5>
+                    <p class="card-text">The donation process takes less than an hour of your time.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="icon-box bg-danger text-white rounded-circle p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-heart fa-lg"></i>
+                    </div>
+                    <h5 class="card-title">Regular Need</h5>
+                    <p class="card-text">Blood is needed every day for surgeries, treatments, and emergencies.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h2 class="text-danger mb-3">What People Say</h2>
+            <p class="lead">From donors and recipients who've experienced our platform</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card testimonial-card h-100">
+                <div class="card-body">
+                    <p class="mb-3">
+                        "I've been donating blood for years, but BloodBridge made the process so much easier. 
+                        The reminders are helpful, and knowing my blood has directly saved lives is incredibly fulfilling."
+                    </p>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-danger rounded-circle text-white p-3 me-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Sarah Johnson</h6>
+                            <small class="text-muted">Regular Donor</small>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-clock fa-3x text-danger mb-3"></i>
-                        <h5 class="card-title">Quick Process</h5>
-                        <p class="card-text">The donation process takes less than an hour of your time.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-heart fa-3x text-danger mb-3"></i>
-                        <h5 class="card-title">Regular Need</h5>
-                        <p class="card-text">Blood is needed every day for surgeries, treatments, and emergencies.</p>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card testimonial-card h-100">
+                <div class="card-body">
+                    <p class="mb-3">
+                        "When my son needed emergency blood transfusion after an accident, 
+                        BloodBridge helped us find donors quickly. The response from the community was overwhelming. 
+                        Forever grateful."
+                    </p>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-danger rounded-circle text-white p-3 me-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Michael Rodriguez</h6>
+                            <small class="text-muted">Recipient Family</small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Call to Action -->
+<div class="container mb-5">
+    <div class="card bg-danger text-white">
+        <div class="card-body p-5 text-center">
+            <h2 class="card-title mb-3">Ready to Make a Difference?</h2>
+            <p class="card-text mb-4">Join thousands of donors who save lives every day through blood donation.</p>
+            <div class="d-grid gap-2 d-md-flex justify-content-center">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4 me-md-2">Register Now</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">Login</a>
+                {% else %}
+                    <a href="{{ url_for(current_user.role + '_dashboard') }}" class="btn btn-light btn-lg px-4">Go to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Extra Scripts for Counters -->
+{% block extra_scripts %}
+<script>
+    // Counter animation
+    document.addEventListener('DOMContentLoaded', function() {
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const increment = target / speed;
+            
+            let count = 0;
+            const updateCount = () => {
+                count += increment;
+                if(count < target) {
+                    counter.innerText = Math.ceil(count);
+                    setTimeout(updateCount, 1);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            
+            updateCount();
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

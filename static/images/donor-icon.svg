@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="60" fill="#f8d7da"/>
+  
+  <!-- Person Silhouette -->
+  <circle cx="60" cy="40" r="20" fill="#dc3545"/>
+  <path d="M40 90 A30 30 0 0 1 80 90" fill="#dc3545"/>
+  
+  <!-- Blood Drop -->
+  <path d="M90 60 C90 60 100 75 100 85 C100 92.5 94 98 87.5 98 C81 98 75 92.5 75 85 C75 75 85 60 85 60" 
+        fill="#dc3545" stroke="#fff" stroke-width="1"/>
+  
+  <!-- Plus Symbol -->
+  <path d="M87.5 75 L87.5 95 M77.5 85 L97.5 85" stroke="#fff" stroke-width="2"/>
+</svg>
