@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="welcome-section mb-4">
+        <h1 class="text-danger">WELCOME, Admin!</h1>
+        <p class="lead">
+            Manage donors, receivers, blood requests, and stock levels seamlessly. 
+            Access insights and ensure efficient operations from your centralized dashboard.
+        </p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Blood Requests</h5>
+                    <i class="fas fa-procedures fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light">View Requests</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Manage Donors/Receivers</h5>
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light">Manage Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Blood Bank Inventory</h5>
+                    <i class="fas fa-warehouse fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light">View Inventory</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Reports</h5>
+                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light">View Reports</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Recent Blood Requests
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Blood Type</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sample data -->
+                                <tr>
+                                    <td>#1234</td>
+                                    <td>A+</td>
+                                    <td><span class="badge bg-warning">Pending</span></td>
+                                    <td><button class="btn btn-sm btn-primary">Review</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Blood Stock Levels
+                </div>
+                <div class="card-body">
+                    <canvas id="bloodStockChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

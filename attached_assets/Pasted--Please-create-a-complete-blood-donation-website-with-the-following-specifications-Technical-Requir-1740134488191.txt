@@ -1,0 +1,125 @@
+"Please create a complete blood donation website with the following specifications:
+Technical Requirements:
+
+Frontend: HTML, CSS, JavaScript
+Backend: Flask (Python)
+Database: PostgreSQL
+Must be responsive and mobile-friendly using modern CSS practices
+
+Core Features Required:
+
+User Authentication System:
+
+
+Secure registration and login for donors and recipients
+Role-based access control (donors, recipients, administrators)
+Password encryption and secure session management
+
+
+Donor Management:
+
+
+Profile creation with blood type, medical history, and contact information
+Availability status toggling
+Donation history tracking
+Real-time availability updates
+
+
+Recipient Management:
+
+
+Blood request creation system
+Emergency request flagging
+Status tracking for requests
+Matching system based on blood type compatibility
+
+
+Dashboard Features:
+
+
+Admin dashboard showing KPIs and donation statistics
+Donor dashboard displaying donation history and upcoming appointments
+Recipient dashboard showing request status and matches
+
+
+Real-time Features:
+
+
+Instant notifications for blood requests
+Emergency alerts system
+Real-time status updates for donations
+Location-based donor matching
+
+
+Data Security:
+
+
+Secure handling of medical information
+GDPR compliance measures
+Data encryption for sensitive information
+Secure API endpoints
+
+UI/UX Requirements:
+
+Landing Page:
+
+
+Clear call-to-action buttons for donation and requests
+Emergency request button
+Statistics on blood donation impact
+User testimonials section
+
+
+User Interface:
+
+
+Clean, modern design
+Intuitive navigation
+Mobile-responsive layout
+Accessibility features
+
+
+Search and Filter:
+
+
+Advanced search for blood types
+Location-based donor search
+Filter by availability and distance
+
+Database Schema:
+
+Users table (donors and recipients)
+Blood donations table
+Requests table
+Matching history table
+Notifications table
+
+Additional Features:
+
+Support System:
+
+
+Live chat integration
+FAQ section
+Help documentation
+Contact form
+
+
+Reporting:
+
+
+Generate donation reports
+Analytics dashboard
+User activity tracking
+Success rate monitoring
+
+Please provide the complete code structure including:
+
+All necessary Flask routes and controllers
+Database models and migrations
+Frontend templates and components
+API endpoints documentation
+Security implementations
+Deployment instructions
+
+The solution should focus on scalability, performance, and user experience while maintaining high security standards for medical data."

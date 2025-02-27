@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-danger mb-4">Blood Donation Tips</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="text-danger">Before Donation</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-clock text-danger me-2"></i>
+                            Get plenty of sleep the night before
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-utensils text-danger me-2"></i>
+                            Eat a healthy meal within 2-3 hours before donating
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-tint text-danger me-2"></i>
+                            Drink plenty of water
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-id-card text-danger me-2"></i>
+                            Bring valid ID and list of medications
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="text-danger">During Donation</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-couch text-danger me-2"></i>
+                            Wear comfortable clothing
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-heart text-danger me-2"></i>
+                            Relax and stay calm
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-hand-holding-heart text-danger me-2"></i>
+                            Inform staff if you feel unwell
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="text-danger">After Donation</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-glass-water text-danger me-2"></i>
+                            Drink extra fluids for the next 24-48 hours
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-dumbbell text-danger me-2"></i>
+                            Avoid strenuous physical activity for the rest of the day
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-ban text-danger me-2"></i>
+                            Don't smoke for at least 2 hours
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-band-aid text-danger me-2"></i>
+                            Keep the bandage on for at least 4-5 hours
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="text-danger">Quick Facts</h4>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-clock fa-2x text-danger me-3"></i>
+                        <div>
+                            <h6 class="mb-0">Donation Time</h6>
+                            <p class="mb-0">Takes only 8-10 minutes</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-battery-full fa-2x text-danger me-3"></i>
+                        <div>
+                            <h6 class="mb-0">Recovery Time</h6>
+                            <p class="mb-0">Body replenishes within 24 hours</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar fa-2x text-danger me-3"></i>
+                        <div>
+                            <h6 class="mb-0">Next Donation</h6>
+                            <p class="mb-0">Wait 56 days between donations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="text-danger">Need Help?</h4>
+                    <p>If you have any questions about donating blood, please don't hesitate to contact us.</p>
+                    <a href="{{ url_for('contact') }}" class="btn btn-danger w-100">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

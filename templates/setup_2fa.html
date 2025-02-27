@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Setup Two-Factor Authentication</h2>
+                    
+                    {% if not current_user.totp_enabled %}
+                        <div class="text-center mb-4">
+                            <p>Scan this QR code with your authenticator app:</p>
+                            <img src="{{ qr_code }}" class="img-fluid mb-3" alt="2FA QR Code">
+                            
+                            <div class="alert alert-info">
+                                <p class="mb-0"><strong>Can't scan the QR code?</strong></p>
+                                <p class="mb-0">Enter this code manually: {{ secret }}</p>
+                            </div>
+                        </div>
+                        
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="token" class="form-label">Enter the 6-digit code from your authenticator app:</label>
+                                <input type="text" class="form-control" id="token" name="token" required pattern="[0-9]{6}" maxlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">Verify and Enable 2FA</button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <h4 class="alert-heading">2FA is enabled!</h4>
+                            <p>Two-factor authentication is already set up for your account.</p>
+                        </div>
+                        <form method="POST" action="{{ url_for('disable_2fa') }}">
+                            <button type="submit" class="btn btn-outline-danger w-100">Disable 2FA</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

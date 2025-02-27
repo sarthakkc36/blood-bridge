@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-danger mb-4">Can I Give Blood?</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="text-danger mb-4">Basic Eligibility Requirements</h4>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-check-circle text-success me-2"></i>You can donate if you:</h5>
+                        <ul class="list-unstyled ms-4">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Are at least 17 years old (16 with parental consent in some states)</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Weigh at least 110 pounds</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Are in good general health</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Haven't donated whole blood in the last 56 days</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5><i class="fas fa-times-circle text-danger me-2"></i>You cannot donate if you:</h5>
+                        <ul class="list-unstyled ms-4">
+                            <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Have a cold, flu, or other acute illness</li>
+                            <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Have certain chronic illnesses</li>
+                            <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Are pregnant</li>
+                            <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Have traveled to certain countries in the past year</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="text-danger mb-4">Health Conditions to Consider</h4>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Condition</th>
+                                    <th>Can Donate?</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Diabetes</td>
+                                    <td><span class="badge bg-success">Yes</span></td>
+                                    <td>If well controlled</td>
+                                </tr>
+                                <tr>
+                                    <td>High Blood Pressure</td>
+                                    <td><span class="badge bg-success">Yes</span></td>
+                                    <td>If controlled with medication</td>
+                                </tr>
+                                <tr>
+                                    <td>Recent Surgery</td>
+                                    <td><span class="badge bg-warning">Maybe</span></td>
+                                    <td>Wait 6-12 months</td>
+                                </tr>
+                                <tr>
+                                    <td>Cancer</td>
+                                    <td><span class="badge bg-danger">No</span></td>
+                                    <td>Active or recent treatment</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="text-danger">Quick Eligibility Check</h5>
+                    <p>Answer a few questions to check if you're eligible to donate blood:</p>
+                    <a href="#eligibilityQuiz" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#eligibilityQuiz">
+                        Start Quick Check
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="text-danger">Need More Information?</h5>
+                    <p>Contact us for detailed eligibility information:</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-danger">Contact Us</a>
+                        <a href="{{ url_for('faq') }}" class="btn btn-outline-danger">View FAQs</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-danger">Ready to Donate?</h5>
+                    <p>If you meet the eligibility requirements, schedule your donation now:</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-danger w-100">Register to Donate</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Eligibility Quiz Modal -->
+<div class="modal fade" id="eligibilityQuiz" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Quick Eligibility Check</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>This feature is coming soon!</p>
+                <p>For now, please review the eligibility requirements listed on this page or contact us for specific questions.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

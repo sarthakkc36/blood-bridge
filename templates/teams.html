@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-danger mb-4">Our Team</h1>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-md fa-4x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Medical Team</h5>
+                    <p class="card-text">Our medical professionals ensure safe and efficient blood donation processes.</p>
+                    <ul class="list-unstyled">
+                        <li>Qualified Physicians</li>
+                        <li>Registered Nurses</li>
+                        <li>Lab Technicians</li>
+                        <li>Healthcare Coordinators</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-hands-helping fa-4x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Support Staff</h5>
+                    <p class="card-text">Dedicated to providing excellent donor and recipient support.</p>
+                    <ul class="list-unstyled">
+                        <li>Donor Relations</li>
+                        <li>Patient Coordinators</li>
+                        <li>Administrative Staff</li>
+                        <li>Volunteer Coordinators</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-laptop-code fa-4x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Technical Team</h5>
+                    <p class="card-text">Managing our digital infrastructure and blood bank systems.</p>
+                    <ul class="list-unstyled">
+                        <li>System Administrators</li>
+                        <li>Database Managers</li>
+                        <li>Software Developers</li>
+                        <li>IT Support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">Join Our Team</h5>
+                    <p class="card-text">
+                        We're always looking for passionate individuals to join our mission of saving lives through blood donation.
+                        If you're interested in joining our team, please send your resume to careers@bloodbank.com
+                    </p>
+                    <a href="{{ url_for('contact') }}" class="btn btn-danger">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

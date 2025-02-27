@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-danger mb-4">Blood Requests</h1>
+
+    {% if current_user.role == 'receiver' %}
+    <div class="mb-4">
+        <a href="{{ url_for('request_blood') }}" class="btn btn-danger">Create New Request</a>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Blood Type</th>
+                            <th>Units Needed</th>
+                            <th>Urgency</th>
+                            <th>Hospital</th>
+                            <th>Required By</th>
+                            <th>Status</th>
+                            {% if current_user.role == 'donor' %}
+                            <th>Action</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td>#{{ request.id }}</td>
+                            <td><span class="badge bg-danger">{{ request.blood_type }}</span></td>
+                            <td>{{ request.units_needed }}</td>
+                            <td>
+                                {% if request.urgency == 'emergency' %}
+                                <span class="badge bg-danger">Emergency</span>
+                                {% elif request.urgency == 'urgent' %}
+                                <span class="badge bg-warning">Urgent</span>
+                                {% else %}
+                                <span class="badge bg-info">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.hospital }}</td>
+                            <td>{{ request.required_by.strftime('%Y-%m-%d') if request.required_by else 'Not specified' }}</td>
+                            <td>
+                                {% if request.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% elif request.status == 'fulfilled' %}
+                                <span class="badge bg-success">Fulfilled</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ request.status }}</span>
+                                {% endif %}
+                            </td>
+                            {% if current_user.role == 'donor' %}
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger">Donate</button>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center">No blood requests found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

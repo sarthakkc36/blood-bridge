@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-danger mb-4">Help & Support</h1>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-phone-alt fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Emergency Contact</h5>
+                    <p class="card-text">For urgent assistance:</p>
+                    <h4 class="text-danger">1-800-BLOOD-HELP</h4>
+                    <p class="text-muted">Available 24/7</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Email Support</h5>
+                    <p class="card-text">Send us your queries at:</p>
+                    <a href="mailto:support@bloodbank.com" class="text-danger">support@bloodbank.com</a>
+                    <p class="text-muted mt-2">Response within 24 hours</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-comments fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Live Chat</h5>
+                    <p class="card-text">Chat with our support team</p>
+                    <button class="btn btn-danger" disabled>Coming Soon</button>
+                    <p class="text-muted mt-2">9 AM - 5 PM (Mon-Fri)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="text-danger mb-4">Common Support Topics</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-4">
+                        <h5><i class="fas fa-user-plus text-danger me-2"></i>Account Issues</h5>
+                        <ul class="list-unstyled ms-4">
+                            <li><a href="#" class="text-decoration-none">Reset Password</a></li>
+                            <li><a href="#" class="text-decoration-none">Update Profile</a></li>
+                            <li><a href="#" class="text-decoration-none">Account Verification</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-calendar-alt text-danger me-2"></i>Donation Scheduling</h5>
+                        <ul class="list-unstyled ms-4">
+                            <li><a href="#" class="text-decoration-none">Book Appointment</a></li>
+                            <li><a href="#" class="text-decoration-none">Reschedule Donation</a></li>
+                            <li><a href="#" class="text-decoration-none">Cancel Appointment</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-4">
+                        <h5><i class="fas fa-hospital text-danger me-2"></i>Blood Centers</h5>
+                        <ul class="list-unstyled ms-4">
+                            <li><a href="#" class="text-decoration-none">Find Nearest Center</a></li>
+                            <li><a href="#" class="text-decoration-none">Center Operating Hours</a></li>
+                            <li><a href="#" class="text-decoration-none">Donation Process</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5><i class="fas fa-file-medical text-danger me-2"></i>Medical Information</h5>
+                        <ul class="list-unstyled ms-4">
+                            <li><a href="#" class="text-decoration-none">Eligibility Requirements</a></li>
+                            <li><a href="#" class="text-decoration-none">Health Guidelines</a></li>
+                            <li><a href="#" class="text-decoration-none">Post-donation Care</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4 class="text-danger mb-4">Additional Resources</h4>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('faq') }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-question-circle fa-2x text-danger me-3"></i>
+                            <div>
+                                <h6 class="mb-0">FAQ</h6>
+                                <small class="text-muted">Frequently Asked Questions</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('donation_tips') }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-lightbulb fa-2x text-danger me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Donation Tips</h6>
+                                <small class="text-muted">Guidelines for Donors</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('contact') }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-paper-plane fa-2x text-danger me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Contact Form</h6>
+                                <small class="text-muted">Send us a Message</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

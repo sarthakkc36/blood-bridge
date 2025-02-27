@@ -1,0 +1,143 @@
+:root {
+    --primary-red: #dc3545;
+    --dark-red: #c82333;
+    --light-gray: #f8f9fa;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* Navbar Styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand .blood-drop {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .blood-drop {
+    transform: scale(1.1);
+}
+
+/* Button Styles */
+.btn-danger {
+    background-color: var(--primary-red);
+    border-color: var(--primary-red);
+}
+
+.btn-danger:hover {
+    background-color: var(--dark-red);
+    border-color: var(--dark-red);
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.25);
+}
+
+/* Card Styles */
+.card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: var(--light-gray);
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+/* Dashboard Styles */
+.welcome-section {
+    background: linear-gradient(135deg, #fff 50%, #f8d7da 100%);
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.blood-cells-bg {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%23dc3545' opacity='0.1'/%3E%3C/svg%3E");
+    height: 200px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Progress Bars */
+.blood-type-status .progress {
+    height: 8px;
+    background-color: #e9ecef;
+}
+
+.blood-type-status .badge {
+    width: 40px;
+    margin-right: 10px;
+}
+
+/* Table Styles */
+.table thead th {
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .welcome-section {
+        padding: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        margin: 0 -1rem;
+    }
+}
+
+/* Icon Styles */
+.fa-3x {
+    margin: 1rem 0;
+    color: rgba(255,255,255,0.9);
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Footer Styles */
+.footer {
+    margin-top: auto;
+    padding: 1.5rem 0;
+    background-color: var(--light-gray);
+}

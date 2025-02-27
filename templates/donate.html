@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <h1 class="text-danger text-center mb-4">Record Blood Donation</h1>
+                <p class="text-center mb-4">Thank you for your generous donation! Please record your donation details below.</p>
+
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Blood Type</label>
+                            <input type="text" class="form-control" value="{{ current_user.blood_type }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Units Donated</label>
+                            <input type="number" class="form-control" name="units" min="1" max="3" value="1" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Donation Center</label>
+                        <input type="text" class="form-control" name="center" placeholder="Enter donation center name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea class="form-control" name="notes" rows="3" placeholder="Any additional information"></textarea>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="confirm" required>
+                        <label class="form-check-label" for="confirm">
+                            I confirm that all the information provided is accurate
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100">Record Donation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

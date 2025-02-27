@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-danger mb-4">Blood Banks Near You</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Find Blood Banks</h5>
+                    <div class="mb-3">
+                        <input type="text" id="search-location" class="form-control" placeholder="Enter your location">
+                    </div>
+                    <button onclick="searchNearbyBloodBanks()" class="btn btn-danger">Search</button>
+                </div>
+            </div>
+
+            <div id="blood-banks-list" class="list-group mb-4">
+                <!-- Blood banks will be listed here -->
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div id="map" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GoMaps Pro CSS and JS -->
+<link href="https://cdn.gomap.pro/v1/style.css" rel="stylesheet">
+<script src="https://cdn.gomap.pro/v1/gomap.js?key=AlzaSyb9PBxwGmEzhu2ZaEkN813lJbFF5PwGy7B"></script>
+
+<script>
+let map;
+let markers = [];
+const bloodBanks = [
+    { name: 'Central Blood Bank', position: [37.7749, -122.4194], address: '123 Main St, San Francisco, CA' },
+    { name: 'City Blood Center', position: [37.7833, -122.4167], address: '456 Market St, San Francisco, CA' },
+    { name: 'Red Cross Donation Center', position: [37.7879, -122.4074], address: '789 Mission St, San Francisco, CA' }
+];
+
+function initMap() {
+    // Initialize the map centered on San Francisco
+    map = new GoMap('map', {
+        center: [37.7749, -122.4194],
+        zoom: 12,
+        style: 'default'
+    });
+
+    // Add markers for blood banks
+    bloodBanks.forEach(bloodBank => {
+        addMarker(bloodBank);
+    });
+
+    // Update list
+    updateBloodBanksList();
+}
+
+function addMarker(bloodBank) {
+    const marker = new GoMap.Marker({
+        position: bloodBank.position,
+        map: map,
+        title: bloodBank.name,
+        icon: {
+            url: '/static/images/blood-drop-marker.svg',
+            size: [32, 32]
+        }
+    });
+
+    const popup = new GoMap.Popup({
+        content: `
+            <div class="p-2">
+                <h5>${bloodBank.name}</h5>
+                <p>${bloodBank.address}</p>
+                <a href="https://www.gomap.pro/directions?to=${bloodBank.position[0]},${bloodBank.position[1]}" 
+                   target="_blank" class="btn btn-sm btn-danger">Get Directions</a>
+            </div>
+        `
+    });
+
+    marker.on('click', () => {
+        popup.open(map, marker);
+    });
+
+    markers.push(marker);
+}
+
+function updateBloodBanksList() {
+    const listContainer = document.getElementById('blood-banks-list');
+    listContainer.innerHTML = '';
+
+    bloodBanks.forEach(bloodBank => {
+        const item = document.createElement('a');
+        item.className = 'list-group-item list-group-item-action';
+        item.innerHTML = `
+            <h6 class="mb-1">${bloodBank.name}</h6>
+            <p class="mb-1 small">${bloodBank.address}</p>
+        `;
+        item.addEventListener('click', () => {
+            map.setCenter(bloodBank.position);
+            map.setZoom(15);
+        });
+        listContainer.appendChild(item);
+    });
+}
+
+function searchNearbyBloodBanks() {
+    const searchInput = document.getElementById('search-location').value;
+    // In a real application, this would make an API call to search for nearby blood banks
+    GoMap.Geocoder.search(searchInput).then(results => {
+        if (results.length > 0) {
+            const location = results[0].position;
+            map.setCenter(location);
+            map.setZoom(13);
+        }
+    });
+}
+
+// Initialize the map when the page loads
+window.onload = initMap;
+</script>
+{% endblock %}

@@ -1,0 +1,127 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="receiver-dashboard">
+    <div class="container mb-4">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="text-center mb-4">My Profile</h2>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
+                        <p><strong>Email:</strong> {{ current_user.email }}</p>
+                        <p><strong>Blood Type:</strong> {{ current_user.blood_type or 'Not specified' }}</p>
+                        <p><strong>Role:</strong> {{ current_user.role.capitalize() }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Phone:</strong> {{ current_user.phone or 'Not specified' }}</p>
+                        <p><strong>Address:</strong> {{ current_user.address or 'Not specified' }}</p>
+                        <p><strong>Gender:</strong> {{ current_user.gender or 'Not specified' }}</p>
+                        <p><strong>2FA Status:</strong> {{ 'Enabled' if current_user.totp_enabled else 'Disabled' }}</p>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('setup_2fa') }}" class="btn btn-danger">
+                        {% if current_user.totp_enabled %}Manage{% else %}Setup{% endif %} Two-Factor Authentication
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Request Blood</h5>
+                    <i class="fas fa-hand-holding-medical fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light w-100">New Request</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Help and Support</h5>
+                    <i class="fas fa-headset fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light w-100">Get Help</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Blood Bank</h5>
+                    <i class="fas fa-hospital fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light w-100">Find</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Track Requests</h5>
+                    <i class="fas fa-tasks fa-3x mb-3"></i>
+                    <a href="#" class="btn btn-light w-100">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Active Blood Requests</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Blood Type</th>
+                                    <th>Status</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5" class="text-center">No active requests</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">Blood Availability</div>
+                <div class="card-body">
+                    <div class="blood-type-status">
+                        <div class="blood-type mb-2">
+                            <span class="badge bg-danger">A+</span>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <div class="blood-type mb-2">
+                            <span class="badge bg-danger">B+</span>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        <div class="blood-type mb-2">
+                            <span class="badge bg-danger">O+</span>
+                            <div class="progress">
+                                <div class="progress-bar bg-danger" style="width: 20%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
