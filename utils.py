@@ -45,6 +45,26 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def donor_required(f):
+    """Decorator to require donor role for access."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'donor':
+            flash('You need to be a donor to access this page.', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def receiver_required(f):
+    """Decorator to require receiver role for access."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'receiver':
+            flash('You need to be a receiver to access this page.', 'danger')
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 def format_datetime(dt):
     """Format datetime for display."""
     return dt.strftime("%B %d, %Y %I:%M %p")
@@ -116,3 +136,33 @@ def get_blood_stock_status():
         'O+': {'units': 85, 'status': 'normal'},
         'O-': {'units': 55, 'status': 'normal'}
     }
+
+def check_donor_eligibility(donor):
+    """
+    Check if a donor is eligible to donate blood based on verification status and last donation date.
+    
+    Returns:
+        tuple: (is_eligible, message)
+    """
+    if not donor.is_verified:
+        return False, "You need to be verified before you can donate."
+    
+    if donor.verification_status != 'approved':
+        return False, f"Your verification status is '{donor.verification_status}'. You need to be approved to donate."
+    
+    if donor.next_eligible_date and donor.next_eligible_date > datetime.utcnow():
+        days_remaining = (donor.next_eligible_date - datetime.utcnow()).days
+        return False, f"You will be eligible to donate again in {days_remaining} days."
+    
+    return True, "You are eligible to donate blood."
+
+def format_verification_status(status):
+    """Format verification status for display with appropriate color class."""
+    status_formats = {
+        'unverified': {'text': 'Not Verified', 'class': 'secondary'},
+        'pending': {'text': 'Pending Review', 'class': 'warning'},
+        'approved': {'text': 'Verified', 'class': 'success'},
+        'rejected': {'text': 'Rejected', 'class': 'danger'}
+    }
+    
+    return status_formats.get(status, {'text': status.capitalize(), 'class': 'secondary'})

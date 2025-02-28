@@ -22,6 +22,14 @@ class User(UserMixin, db.Model):
     # 2FA fields
     totp_secret = db.Column(db.String(32))
     totp_enabled = db.Column(db.Boolean, default=False)
+    
+    # Donor verification fields
+    is_verified = db.Column(db.Boolean, default=False)
+    verification_status = db.Column(db.String(20), default='unverified')  # 'unverified', 'pending', 'approved', 'rejected'
+    verification_date = db.Column(db.DateTime)
+    last_donation_date = db.Column(db.DateTime)
+    next_eligible_date = db.Column(db.DateTime)
+    verification_note = db.Column(db.Text)
 
     def get_totp_uri(self):
         """Generate the TOTP URI for QR code generation"""
@@ -43,6 +51,21 @@ class User(UserMixin, db.Model):
         """Generate a new TOTP secret"""
         self.totp_secret = pyotp.random_base32()
         return self.totp_secret
+        
+    def can_donate(self):
+        """Check if user is eligible to donate based on verification and last donation date"""
+        if not self.is_verified or self.verification_status != 'approved':
+            return False, "You need to complete the verification process before donating."
+            
+        if self.next_eligible_date and self.next_eligible_date > datetime.utcnow():
+            return False, f"You are not eligible to donate until {self.next_eligible_date.strftime('%Y-%m-%d')}."
+            
+        return True, "You are eligible to donate blood."
+        
+    def get_full_name(self):
+        """Get user's full name"""
+        return f"{self.first_name} {self.last_name}"
+
 
 class BloodRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,6 +82,7 @@ class BloodRequest(db.Model):
     # Relationships
     requester = db.relationship('User', backref='blood_requests')
 
+
 class Donation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -66,8 +90,28 @@ class Donation(db.Model):
     donation_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     units = db.Column(db.Integer, nullable=False, default=1)
     center = db.Column(db.String(200))
-    status = db.Column(db.String(20), default='completed')
+    status = db.Column(db.String(20), default='pending')  # 'pending', 'completed', 'cancelled'
     notes = db.Column(db.Text)
 
     # Relationships
     donor = db.relationship('User', backref='donations')
+
+
+class DonorVerification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    submission_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='pending')  # 'pending', 'approved', 'rejected'
+    id_document_filename = db.Column(db.String(200))
+    medical_certificate_filename = db.Column(db.String(200))
+    address_proof_filename = db.Column(db.String(200))
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    review_date = db.Column(db.DateTime)
+    review_notes = db.Column(db.Text)
+    
+    # Health questionnaire responses stored as JSON
+    questionnaire_responses = db.Column(db.Text)  # Stored as JSON
+    
+    # Relationships
+    donor = db.relationship('User', foreign_keys=[donor_id], backref='verifications')
+    reviewer = db.relationship('User', foreign_keys=[reviewer_id])

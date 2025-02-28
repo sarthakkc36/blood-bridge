@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-lg-5">
+                    <h1 class="text-danger mb-4">Donor Verification</h1>
+                    
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="fas fa-info-circle fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="alert-heading">Important Information</h5>
+                                <p class="mb-0">To ensure the safety of blood recipients, all donors must be verified before donating. This process includes verifying your identity and medical eligibility.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <!-- Step 1: Identity Verification -->
+                        <div class="verification-section mb-5">
+                            <h4 class="text-danger mb-3">
+                                <i class="fas fa-id-card me-2"></i> Identity Verification
+                            </h4>
+                            <p class="text-muted mb-4">Please upload a clear photo or scan of a valid government-issued ID (e.g., Driver's License, Passport, National ID Card).</p>
+                            
+                            <div class="mb-4">
+                                <label for="id_document" class="form-label">ID Document <span class="text-danger">*</span></label>
+                                <input class="form-control" type="file" id="id_document" name="id_document" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <div class="form-text">Accepted formats: JPG, PNG, PDF (Max 5MB)</div>
+                                <div class="invalid-feedback">Please provide a valid ID document.</div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="address_proof" class="form-label">Proof of Address</label>
+                                <input class="form-control" type="file" id="address_proof" name="address_proof" accept=".jpg,.jpeg,.png,.pdf">
+                                <div class="form-text">Utility bill, bank statement, or official correspondence showing your current address (within last 3 months)</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Medical Eligibility -->
+                        <div class="verification-section mb-5">
+                            <h4 class="text-danger mb-3">
+                                <i class="fas fa-heartbeat me-2"></i> Medical Eligibility
+                            </h4>
+                            <p class="text-muted mb-4">Please answer the following health-related questions truthfully to determine your eligibility.</p>
+                            
+                            <div class="mb-4">
+                                <label for="medical_certificate" class="form-label">Medical Certificate (if available)</label>
+                                <input class="form-control" type="file" id="medical_certificate" name="medical_certificate" accept=".jpg,.jpeg,.png,.pdf">
+                                <div class="form-text">If you have a recent medical certificate or blood test results, please upload them.</div>
+                            </div>
+                            
+                            <div class="card bg-light mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Health Questionnaire</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Have you been ill in the past 2 weeks? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="recent_illness" id="illness_yes" value="yes" required>
+                                            <label class="form-check-label" for="illness_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="recent_illness" id="illness_no" value="no" required>
+                                            <label class="form-check-label" for="illness_no">No</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Are you currently taking any medication? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="medication" id="medication_yes" value="yes" required>
+                                            <label class="form-check-label" for="medication_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="medication" id="medication_no" value="no" required>
+                                            <label class="form-check-label" for="medication_no">No</label>
+                                        </div>
+                                        <div class="form-text">If yes, please specify in the notes section below.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">When was your last blood donation? <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="last_donation" required>
+                                            <option value="">Select an option</option>
+                                            <option value="never">Never donated before</option>
+                                            <option value="less_than_3_months">Less than 3 months ago</option>
+                                            <option value="3_to_6_months">3-6 months ago</option>
+                                            <option value="more_than_6_months">More than 6 months ago</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Do you have any allergies? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="has_allergies" id="allergies_yes" value="yes" required>
+                                            <label class="form-check-label" for="allergies_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="has_allergies" id="allergies_no" value="no" required>
+                                            <label class="form-check-label" for="allergies_no">No</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="allergies_details_section" class="mb-3 d-none">
+                                        <label for="allergies_details" class="form-label">Please specify your allergies:</label>
+                                        <textarea class="form-control" id="allergies_details" name="allergies_details" rows="2"></textarea>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Have you received a blood transfusion in the last 12 months? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="blood_transfusion" id="transfusion_yes" value="yes" required>
+                                            <label class="form-check-label" for="transfusion_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="blood_transfusion" id="transfusion_no" value="no" required>
+                                            <label class="form-check-label" for="transfusion_no">No</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Have you had surgery in the last 6 months? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="recent_surgery" id="surgery_yes" value="yes" required>
+                                            <label class="form-check-label" for="surgery_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="recent_surgery" id="surgery_no" value="no" required>
+                                            <label class="form-check-label" for="surgery_no">No</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Do you have any chronic medical conditions? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="chronic_conditions" id="chronic_yes" value="yes" required>
+                                            <label class="form-check-label" for="chronic_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="chronic_conditions" id="chronic_no" value="no" required>
+                                            <label class="form-check-label" for="chronic_no">No</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Have you traveled to any countries with high risk of endemic diseases in the last 12 months? <span class="text-danger">*</span></label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="travel_history" id="travel_yes" value="yes" required>
+                                            <label class="form-check-label" for="travel_yes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="travel_history" id="travel_no" value="no" required>
+                                            <label class="form-check-label" for="travel_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="additional_notes" class="form-label">Additional Medical Information</label>
+                                <textarea class="form-control" id="additional_notes" name="additional_notes" rows="3" placeholder="Please provide any other relevant medical information that might affect your eligibility to donate blood."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Consent Section -->
+                        <div class="verification-section mb-5">
+                            <h4 class="text-danger mb-3">
+                                <i class="fas fa-file-signature me-2"></i> Consent & Declaration
+                            </h4>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="consent" name="consent" required>
+                                    <label class="form-check-label" for="consent">
+                                        <strong>I declare that all information provided is true and accurate to the best of my knowledge.</strong> I understand that providing false information may lead to disqualification from blood donation. I consent to having my documents verified and my personal information stored for the purpose of blood donation eligibility assessment. I understand that I can withdraw my consent at any time by contacting BloodBridge.
+                                    </label>
+                                    <div class="invalid-feedback">You must agree to the terms before submitting.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary me-md-2" onclick="window.location.href='{{ url_for('donor_dashboard') }}'">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Submit Verification</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide allergies details based on selection
+    document.addEventListener("DOMContentLoaded", function() {
+        const allergiesYes = document.getElementById("allergies_yes");
+        const allergiesNo = document.getElementById("allergies_no");
+        const allergiesDetailsSection = document.getElementById("allergies_details_section");
+        
+        function toggleAllergiesDetails() {
+            if (allergiesYes.checked) {
+                allergiesDetailsSection.classList.remove("d-none");
+                document.getElementById("allergies_details").setAttribute("required", "required");
+            } else {
+                allergiesDetailsSection.classList.add("d-none");
+                document.getElementById("allergies_details").removeAttribute("required");
+            }
+        }
+        
+        allergiesYes.addEventListener("change", toggleAllergiesDetails);
+        allergiesNo.addEventListener("change", toggleAllergiesDetails);
+        
+        // Form validation
+        const form = document.querySelector(".needs-validation");
+        form.addEventListener("submit", function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add("was-validated");
+        });
+    });
+</script>
+{% endblock %}

@@ -16,6 +16,32 @@
             </div>
         </div>
     </div>
+    
+    <!-- Verification Status Alert (if not verified) -->
+    {% if not current_user.is_verified or current_user.verification_status != 'approved' %}
+        <div class="alert alert-warning mb-4">
+            <div class="d-flex">
+                <div class="me-3">
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                </div>
+                <div>
+                    <h5 class="alert-heading">Verification Required</h5>
+                    <p class="mb-0">
+                        {% if current_user.verification_status == 'unverified' %}
+                            You need to complete the verification process before you can donate blood. Verification helps ensure the safety of blood recipients.
+                            <a href="{{ url_for('verify_donor') }}" class="btn btn-sm btn-warning mt-2">Start Verification</a>
+                        {% elif current_user.verification_status == 'pending' %}
+                            Your verification is currently being reviewed. This process typically takes 1-2 business days.
+                            <a href="{{ url_for('verification_status') }}" class="btn btn-sm btn-warning mt-2">Check Status</a>
+                        {% elif current_user.verification_status == 'rejected' %}
+                            Your verification was rejected. Please review the feedback and submit a new verification.
+                            <a href="{{ url_for('verification_status') }}" class="btn btn-sm btn-warning mt-2">View Details</a>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     <!-- Quick Stats -->
     <div class="row mb-4">
@@ -47,13 +73,11 @@
             <div class="card stats-card stats-card-success h-100">
                 <div class="card-body">
                     <h6 class="text-uppercase mb-3">Next Eligible</h6>
-                    {% if donations and donations|length > 0 %}
-                        {% set last_donation = donations|first %}
-                        {% set next_date = (last_donation.donation_date + timedelta(days=56)).strftime('%Y-%m-%d') %}
+                    {% if current_user.next_eligible_date and current_user.next_eligible_date > now %}
                         <div class="d-flex align-items-center">
-                            <h2 class="mb-0">{{ (last_donation.donation_date + timedelta(days=56)).strftime('%b %d') }}</h2>
+                            <h2 class="mb-0">{{ current_user.next_eligible_date.strftime('%b %d') }}</h2>
                         </div>
-                        <small>{{ (last_donation.donation_date + timedelta(days=56)).strftime('%Y') }}</small>
+                        <small>{{ current_user.next_eligible_date.strftime('%Y') }}</small>
                     {% else %}
                         <div class="d-flex align-items-center">
                             <h2 class="mb-0">Today</h2>
@@ -81,6 +105,23 @@
             </div>
         </div>
     </div>
+    
+    <!-- Verification Status Card (if verified) -->
+    {% if current_user.is_verified and current_user.verification_status == 'approved' %}
+        <div class="card verification-status-card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="verified-badge me-3">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1">Verified Donor</h5>
+                        <p class="mb-0 text-muted">Your account is verified. You can donate blood at any time after your eligibility period.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 
     <!-- Action Buttons -->
     <div class="row mb-4">
@@ -92,7 +133,18 @@
                     </div>
                     <h5 class="card-title">Donate Blood</h5>
                     <p class="card-text small">Schedule your next blood donation appointment</p>
-                    <a href="{{ url_for('donate') }}" class="btn btn-danger w-100">Schedule</a>
+                    {% if current_user.is_verified and current_user.verification_status == 'approved' and (not current_user.next_eligible_date or current_user.next_eligible_date <= now) %}
+                        <a href="{{ url_for('donate') }}" class="btn btn-danger w-100">Schedule</a>
+                    {% else %}
+                        <button class="btn btn-danger w-100" disabled>Schedule</button>
+                        <small class="text-muted mt-2 d-block">
+                            {% if not current_user.is_verified or current_user.verification_status != 'approved' %}
+                                Verification required
+                            {% elif current_user.next_eligible_date and current_user.next_eligible_date > now %}
+                                Eligible on {{ current_user.next_eligible_date.strftime('%d %b %Y') }}
+                            {% endif %}
+                        </small>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -100,11 +152,11 @@
             <div class="card h-100 text-center">
                 <div class="card-body">
                     <div class="icon-box rounded-circle bg-secondary text-white p-3 mx-auto mb-3" style="width: 60px; height: 60px;">
-                        <i class="fas fa-calendar-check fa-lg"></i>
+                        <i class="fas fa-user-check fa-lg"></i>
                     </div>
-                    <h5 class="card-title">My Appointments</h5>
-                    <p class="card-text small">View and manage your donation appointments</p>
-                    <a href="#" class="btn btn-outline-secondary w-100">View</a>
+                    <h5 class="card-title">Verification</h5>
+                    <p class="card-text small">View your verification status</p>
+                    <a href="{{ url_for('verification_status') }}" class="btn btn-outline-secondary w-100">View Status</a>
                 </div>
             </div>
         </div>
@@ -161,7 +213,7 @@
                                             <td>{{ donation.center }}</td>
                                             <td>{{ donation.units }}</td>
                                             <td>
-                                                <span class="badge bg-{{ 'success' if donation.status == 'completed' else 'warning' }}">
+                                                <span class="badge bg-{{ 'success' if donation.status == 'completed' else 'warning' if donation.status == 'pending' else 'secondary' }}">
                                                     {{ donation.status.capitalize() }}
                                                 </span>
                                             </td>
@@ -309,4 +361,23 @@
         </div>
     </div>
 </div>
+
+<style>
+    .verification-status-card {
+        background-color: #f8fff8;
+        border-left: 4px solid #28a745;
+    }
+    
+    .verified-badge {
+        width: 40px;
+        height: 40px;
+        background-color: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+</style>
 {% endblock %}
