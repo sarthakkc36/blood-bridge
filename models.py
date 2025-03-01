@@ -1,7 +1,9 @@
 from extensions import db
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timedelta
 import pyotp
+import secrets
+import json
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -65,7 +67,26 @@ class User(UserMixin, db.Model):
     def get_full_name(self):
         """Get user's full name"""
         return f"{self.first_name} {self.last_name}"
+    
+    def generate_password_reset_token(self):
+        """Generate a new password reset token for the user"""
+        # Invalidate any existing tokens
+        for token in self.password_resets:
+            if not token.used and datetime.utcnow() < token.expires_at:
+                token.invalidate()
+        
+        # Create a new token
+        reset = PasswordReset(user_id=self.id)
+        db.session.add(reset)
+        db.session.commit()
+        return reset.token
 
+    def verify_password_reset_token(self, token):
+        """Verify if a given token is valid for this user"""
+        reset = PasswordReset.query.filter_by(user_id=self.id, token=token, used=False).first()
+        if reset and reset.is_valid():
+            return reset
+        return None
 
 class BloodRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -82,7 +103,6 @@ class BloodRequest(db.Model):
     # Relationships
     requester = db.relationship('User', backref='blood_requests')
 
-
 class Donation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     donor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -95,7 +115,6 @@ class Donation(db.Model):
 
     # Relationships
     donor = db.relationship('User', backref='donations')
-
 
 class DonorVerification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -115,8 +134,6 @@ class DonorVerification(db.Model):
     # Relationships
     donor = db.relationship('User', foreign_keys=[donor_id], backref='verifications')
     reviewer = db.relationship('User', foreign_keys=[reviewer_id])
-import secrets
-from datetime import datetime, timedelta
 
 class PasswordReset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -151,24 +168,14 @@ class PasswordReset(db.Model):
         """Mark the token as used"""
         self.used = True
 
-# Add these methods to the User class
-
-def generate_password_reset_token(self):
-    """Generate a new password reset token for the user"""
-    # Invalidate any existing tokens
-    for token in self.password_resets:
-        if not token.used and datetime.utcnow() < token.expires_at:
-            token.invalidate()
+class AdminActionLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    action_type = db.Column(db.String(50), nullable=False)
+    target_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    details = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Create a new token
-    reset = PasswordReset(user_id=self.id)
-    db.session.add(reset)
-    db.session.commit()
-    return reset.token
-
-def verify_password_reset_token(self, token):
-    """Verify if a given token is valid for this user"""
-    reset = PasswordReset.query.filter_by(user_id=self.id, token=token, used=False).first()
-    if reset and reset.is_valid():
-        return reset
-    return None
+    # Relationships
+    admin = db.relationship('User', foreign_keys=[admin_id])
+    target_user = db.relationship('User', foreign_keys=[target_user_id])

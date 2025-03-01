@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from flask import flash, redirect, url_for
 from flask_login import current_user
+import json
 
 def validate_email(email):
     """Validate email format."""
@@ -17,6 +18,30 @@ def validate_password(password):
     - At least one lowercase letter
     - At least one number
     - At least one special character
+    """
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long"
+    
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter"
+    
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter"
+    
+    if not re.search(r'\d', password):
+        return False, "Password must contain at least one number"
+    
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False, "Password must contain at least one special character"
+    
+    return True, "Password is strong"
+
+def validate_password_complexity(password):
+    """
+    Validate password complexity.
+    
+    Returns:
+        tuple: (is_valid, error_message)
     """
     if len(password) < 8:
         return False, "Password must be at least 8 characters long"
@@ -93,68 +118,33 @@ def sanitize_input(text):
     """Sanitize user input to prevent XSS."""
     return re.sub(r'[<>]', '', text)
 
-def generate_request_id():
-    """Generate a unique request ID for blood requests."""
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    return f'REQ{timestamp}'
+def log_admin_action(admin_user, action_type, target_user=None, details=None):
+    """
+    Log administrative actions for auditing purposes.
+    
+    Args:
+        admin_user (User): The admin performing the action
+        action_type (str): Type of action (e.g., 'password_reset', 'user_delete')
+        target_user (User, optional): User the action was performed on
+        details (dict, optional): Additional details about the action
+    """
+    try:
+        from models import AdminActionLog
+        from extensions import db
 
-def calculate_urgency_level(request_data):
-    """
-    Calculate urgency level based on various factors.
-    Returns: 'high', 'medium', or 'low'
-    """
-    factors = {
-        'emergency': 10,
-        'surgery_scheduled': 5,
-        'low_stock': 3,
-        'regular': 1
-    }
-    
-    score = factors.get(request_data.get('type', 'regular'), 1)
-    
-    if request_data.get('quantity', 1) > 3:
-        score += 2
-        
-    if score >= 8:
-        return 'high'
-    elif score >= 4:
-        return 'medium'
-    return 'low'
-
-def get_blood_stock_status():
-    """
-    Get current blood stock status.
-    Returns dictionary with blood types and their availability status.
-    """
-    return {
-        'A+': {'units': 65, 'status': 'normal'},
-        'A-': {'units': 45, 'status': 'normal'},
-        'B+': {'units': 75, 'status': 'normal'},
-        'B-': {'units': 35, 'status': 'warning'},
-        'AB+': {'units': 25, 'status': 'warning'},
-        'AB-': {'units': 15, 'status': 'critical'},
-        'O+': {'units': 85, 'status': 'normal'},
-        'O-': {'units': 55, 'status': 'normal'}
-    }
-
-def check_donor_eligibility(donor):
-    """
-    Check if a donor is eligible to donate blood based on verification status and last donation date.
-    
-    Returns:
-        tuple: (is_eligible, message)
-    """
-    if not donor.is_verified:
-        return False, "You need to be verified before you can donate."
-    
-    if donor.verification_status != 'approved':
-        return False, f"Your verification status is '{donor.verification_status}'. You need to be approved to donate."
-    
-    if donor.next_eligible_date and donor.next_eligible_date > datetime.utcnow():
-        days_remaining = (donor.next_eligible_date - datetime.utcnow()).days
-        return False, f"You will be eligible to donate again in {days_remaining} days."
-    
-    return True, "You are eligible to donate blood."
+        log_entry = AdminActionLog(
+            admin_id=admin_user.id,
+            action_type=action_type,
+            target_user_id=target_user.id if target_user else None,
+            details=json.dumps(details) if details else None,
+            timestamp=datetime.utcnow()
+        )
+        db.session.add(log_entry)
+        db.session.commit()
+    except Exception as e:
+        import logging
+        logging.error(f"Error logging admin action: {str(e)}")
+        db.session.rollback()
 
 def format_verification_status(status):
     """Format verification status for display with appropriate color class."""

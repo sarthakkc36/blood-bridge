@@ -3,226 +3,201 @@
 {% block content %}
 <div class="admin-dashboard">
     <div class="welcome-section mb-4">
-        <h1 class="text-danger">WELCOME, Admin!</h1>
+        <h1 class="text-danger">Welcome, Admin!</h1>
         <p class="lead">
-            Manage donors, receivers, blood requests, and stock levels seamlessly. 
-            Access insights and ensure efficient operations from your centralized dashboard.
+            Manage donors, receivers, blood requests, and system operations from your centralized dashboard.
         </p>
     </div>
 
+    <!-- Quick Stats Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card bg-danger text-white">
+            <div class="card stats-card bg-danger text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Manage Blood Requests</h5>
-                    <i class="fas fa-procedures fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light">View Requests</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title">Manage Donors/Receivers</h5>
-                    <i class="fas fa-users fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light">Manage Users</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Blood Bank Inventory</h5>
-                    <i class="fas fa-warehouse fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light">View Inventory</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Reports</h5>
-                    <i class="fas fa-chart-bar fa-3x mb-3"></i>
-                    <a href="#" class="btn btn-light">View Reports</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pending Actions Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Pending Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="pending-action-card">
-                                <div class="d-flex align-items-center">
-                                    <div class="action-icon bg-warning text-white me-3">
-                                        <i class="fas fa-user-check"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">Donor Verifications</h6>
-                                        <p class="mb-0">{{ pending_verifications_count }} pending</p>
-                                    </div>
-                                </div>
-                                <a href="{{ url_for('admin_verifications') }}" class="btn btn-sm btn-outline-danger mt-2">Review</a>
-                            </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Pending Verifications</h5>
+                            <h2 class="mb-0">{{ pending_verifications_count }}</h2>
                         </div>
-                        <div class="col-md-4">
-                            <div class="pending-action-card">
-                                <div class="d-flex align-items-center">
-                                    <div class="action-icon bg-warning text-white me-3">
-                                        <i class="fas fa-procedures"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">Blood Requests</h6>
-                                        <p class="mb-0">{{ pending_requests_count }} pending</p>
-                                    </div>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-danger mt-2">Review</a>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="pending-action-card">
-                                <div class="d-flex align-items-center">
-                                    <div class="action-icon bg-warning text-white me-3">
-                                        <i class="fas fa-vial"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1">Donation Confirmations</h6>
-                                        <p class="mb-0">{{ pending_donations_count }} pending</p>
-                                    </div>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-danger mt-2">Review</a>
-                            </div>
-                        </div>
+                        <i class="fas fa-user-check fa-3x"></i>
                     </div>
+                    <a href="{{ url_for('admin_verifications') }}" class="btn btn-light btn-sm mt-3">Review</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Blood Requests</h5>
+                            <h2 class="mb-0">{{ pending_requests_count }}</h2>
+                        </div>
+                        <i class="fas fa-hand-holding-medical fa-3x"></i>
+                    </div>
+                    <a href="{{ url_for('blood_requests') }}" class="btn btn-light btn-sm mt-3">View</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Pending Donations</h5>
+                            <h2 class="mb-0">{{ pending_donations_count }}</h2>
+                        </div>
+                        <i class="fas fa-tint fa-3x"></i>
+                    </div>
+                    <a href="#" class="btn btn-light btn-sm mt-3">Review</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Admin Actions</h5>
+                            <h2 class="mb-0">{{ recent_admin_logs|length }}</h2>
+                        </div>
+                        <i class="fas fa-clipboard-list fa-3x"></i>
+                    </div>
+                    <a href="#adminLogsModal" class="btn btn-light btn-sm mt-3" data-bs-toggle="modal">View Logs</a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Main Dashboard Content -->
     <div class="row">
+        <!-- Blood Requests -->
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                    Recent Blood Requests
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Blood Requests</h5>
+                    <a href="{{ url_for('blood_requests') }}" class="btn btn-sm btn-outline-danger">View All</a>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Blood Type</th>
+                                    <th>Urgency</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if blood_requests %}
-                                    {% for request in blood_requests %}
-                                        <tr>
-                                            <td>#{{ request.id }}</td>
-                                            <td><span class="badge bg-danger">{{ request.blood_type }}</span></td>
-                                            <td>
-                                                {% if request.status == 'pending' %}
-                                                    <span class="badge bg-warning">Pending</span>
-                                                {% elif request.status == 'fulfilled' %}
-                                                    <span class="badge bg-success">Fulfilled</span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary">{{ request.status }}</span>
-                                                {% endif %}
-                                            </td>
-                                            <td><button class="btn btn-sm btn-primary">Review</button></td>
-                                        </tr>
-                                    {% endfor %}
+                                {% for request in blood_requests %}
+                                    <tr>
+                                        <td>#{{ request.id }}</td>
+                                        <td><span class="badge bg-danger">{{ request.blood_type }}</span></td>
+                                        <td>
+                                            {% if request.urgency == 'emergency' %}
+                                                <span class="badge bg-danger">Emergency</span>
+                                            {% elif request.urgency == 'urgent' %}
+                                                <span class="badge bg-warning">Urgent</span>
+                                            {% else %}
+                                                <span class="badge bg-info">Normal</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif request.status == 'fulfilled' %}
+                                                <span class="badge bg-success">Fulfilled</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ request.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger">Review</button>
+                                        </td>
+                                    </tr>
                                 {% else %}
                                     <tr>
-                                        <td colspan="4" class="text-center">No recent blood requests</td>
+                                        <td colspan="5" class="text-center py-3">No recent blood requests</td>
                                     </tr>
-                                {% endif %}
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Blood Stock Levels -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    Blood Stock Levels
+                    <h5 class="mb-0">Blood Stock Levels</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="bloodStockChart"></canvas>
+                    <canvas id="bloodStockChart" height="250"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Recent Verifications -->
+
+    <!-- Recent Verifications and Donations -->
     <div class="row mt-4">
-        <div class="col-12">
+        <!-- Recent Verifications -->
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Donor Verifications</h5>
+                    <h5 class="mb-0">Recent Verifications</h5>
                     <a href="{{ url_for('admin_verifications') }}" class="btn btn-sm btn-outline-danger">View All</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Donor</th>
-                                    <th>Submission Date</th>
+                                    <th>Submitted</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if recent_verifications %}
-                                    {% for verification in recent_verifications %}
-                                        <tr>
-                                            <td>{{ verification.id }}</td>
-                                            <td>{{ verification.donor.first_name }} {{ verification.donor.last_name }}</td>
-                                            <td>{{ verification.submission_date.strftime('%d %b %Y') }}</td>
-                                            <td>
-                                                {% if verification.status == 'pending' %}
-                                                    <span class="badge bg-warning">Pending</span>
-                                                {% elif verification.status == 'approved' %}
-                                                    <span class="badge bg-success">Approved</span>
-                                                {% elif verification.status == 'rejected' %}
-                                                    <span class="badge bg-danger">Rejected</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('review_verification', verification_id=verification.id) }}" class="btn btn-sm btn-primary">
-                                                    {% if verification.status == 'pending' %}Review{% else %}View{% endif %}
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
+                                {% for verification in recent_verifications %}
+                                    <tr><td>
+                                            {{ verification.donor.first_name }} {{ verification.donor.last_name }}
+                                        </td>
+                                        <td>{{ verification.submission_date.strftime('%d %b %Y') }}</td>
+                                        <td>
+                                            {% if verification.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif verification.status == 'approved' %}
+                                                <span class="badge bg-success">Approved</span>
+                                            {% elif verification.status == 'rejected' %}
+                                                <span class="badge bg-danger">Rejected</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('review_verification', verification_id=verification.id) }}" 
+                                               class="btn btn-sm btn-outline-danger">
+                                                Review
+                                            </a>
+                                        </td>
+                                    </tr>
                                 {% else %}
                                     <tr>
-                                        <td colspan="5" class="text-center">No recent verifications</td>
+                                        <td colspan="4" class="text-center py-3">No recent verifications</td>
                                     </tr>
-                                {% endif %}
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Recent Donations -->
-    <div class="row mt-4">
-        <div class="col-12">
+
+        <!-- Recent Donations -->
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Recent Donations</h5>
@@ -230,46 +205,99 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Donor</th>
                                     <th>Blood Type</th>
                                     <th>Date</th>
+                                    <th>Units</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% if donations %}
-                                    {% for donation in donations %}
-                                        <tr>
-                                            <td>{{ donation.id }}</td>
-                                            <td>{{ donation.donor.first_name }} {{ donation.donor.last_name }}</td>
-                                            <td><span class="badge bg-danger">{{ donation.blood_type }}</span></td>
-                                            <td>{{ donation.donation_date.strftime('%d %b %Y') }}</td>
-                                            <td>
-                                                {% if donation.status == 'pending' %}
-                                                    <span class="badge bg-warning">Pending</span>
-                                                {% elif donation.status == 'completed' %}
-                                                    <span class="badge bg-success">Completed</span>
-                                                {% elif donation.status == 'cancelled' %}
-                                                    <span class="badge bg-danger">Cancelled</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary">
-                                                    {% if donation.status == 'pending' %}Review{% else %}View{% endif %}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
+                                {% for donation in donations %}
+                                    <tr>
+                                        <td>{{ donation.donor.first_name }} {{ donation.donor.last_name }}</td>
+                                        <td><span class="badge bg-danger">{{ donation.blood_type }}</span></td>
+                                        <td>{{ donation.donation_date.strftime('%d %b %Y') }}</td>
+                                        <td>{{ donation.units }}</td>
+                                        <td>
+                                            {% if donation.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif donation.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ donation.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
                                 {% else %}
                                     <tr>
-                                        <td colspan="6" class="text-center">No recent donations</td>
+                                        <td colspan="5" class="text-center py-3">No recent donations</td>
                                     </tr>
-                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Activity Logs Modal -->
+    <div class="modal fade" id="adminLogsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Recent Admin Actions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Admin</th>
+                                    <th>Action</th>
+                                    <th>Target User</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in recent_admin_logs %}
+                                    <tr>
+                                        <td>{{ log.timestamp.strftime('%d %b %Y, %H:%M') }}</td>
+                                        <td>{{ log.admin.first_name }} {{ log.admin.last_name }}</td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ log.action_type.replace('_', ' ').title() }}</span>
+                                        </td>
+                                        <td>
+                                            {% if log.target_user %}
+                                                {{ log.target_user.first_name }} {{ log.target_user.last_name }}
+                                            {% else %}
+                                                <span class="text-muted">N/A</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if log.details %}
+                                                <button class="btn btn-sm btn-outline-secondary" 
+                                                        data-bs-toggle="popover" 
+                                                        title="Action Details" 
+                                                        data-bs-content="{{ log.details }}">
+                                                    View Details
+                                                </button>
+                                            {% else %}
+                                                <span class="text-muted">No details</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-3">No recent admin actions</td>
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -279,33 +307,10 @@
     </div>
 </div>
 
-<style>
-    .pending-action-card {
-        padding: 15px;
-        border: 1px solid #f1f1f1;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .pending-action-card:hover {
-        border-color: #dc3545;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    
-    .action-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-</style>
-
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize blood stock chart
         const ctx = document.getElementById('bloodStockChart').getContext('2d');
         
         // Blood type data
@@ -352,7 +357,17 @@
                     },
                     tooltip: {
                         mode: 'index',
-                        intersect: false
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y + ' units';
+                                return label;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -371,6 +386,12 @@
                     }
                 }
             }
+        });
+
+        // Initialize popover for action details
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
         });
     });
 </script>

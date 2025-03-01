@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import re
 from datetime import datetime, timedelta
 from flask import Flask, abort, render_template, request, redirect, url_for, flash, session, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -36,7 +37,7 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'address_proofs'), exist_o
 
 # Import these after initializing app
 from extensions import db
-from models import User, BloodRequest, Donation, DonorVerification
+from models import PasswordReset, User, BloodRequest, Donation, DonorVerification
 from utils import admin_required, calculate_blood_compatibility, donor_required, receiver_required, format_verification_status, calculate_next_donation_date
 
 # Initialize SQLAlchemy
@@ -687,3 +688,126 @@ def admin_users():
                           pagination=pagination, 
                           role_filter=role_filter,
                           search_query=search_query)
+# Route for admin dashboard
+@app.route('/admin')
+@login_required
+@admin_required
+def admin_dashboard():
+    # Get counts for admin dashboard
+    pending_verifications_count = DonorVerification.query.filter_by(status='pending').count()
+    pending_requests_count = BloodRequest.query.filter_by(status='pending').count()
+    pending_donations_count = Donation.query.filter_by(status='pending').count()
+    
+    # Get recent data for dashboard
+    blood_requests = BloodRequest.query.order_by(BloodRequest.created_at.desc()).limit(5).all()
+    donations = Donation.query.order_by(Donation.donation_date.desc()).limit(5).all()
+    
+    # Get recent verifications
+    recent_verifications = DonorVerification.query.order_by(
+        DonorVerification.submission_date.desc()
+    ).limit(5).all()
+    
+    # Get admin action logs
+    recent_admin_logs = AdminActionLog.query.order_by(
+        AdminActionLog.timestamp.desc()
+    ).limit(10).all()
+    
+    return render_template(
+        'admin_dashboard.html',
+        pending_verifications_count=pending_verifications_count,
+        pending_requests_count=pending_requests_count,
+        pending_donations_count=pending_donations_count,
+        blood_requests=blood_requests,
+        donations=donations,
+        recent_verifications=recent_verifications,
+        recent_admin_logs=recent_admin_logs
+    )
+
+# Route for admin users page
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_users():
+    """Admin page to view and manage users"""
+    role_filter = request.args.get('role', 'all')
+    search_query = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    
+    query = User.query
+    
+    if role_filter != 'all':
+        query = query.filter_by(role=role_filter)
+    
+    if search_query:
+        query = query.filter(
+            db.or_(
+                User.email.ilike(f'%{search_query}%'),
+                User.first_name.ilike(f'%{search_query}%'),
+                User.last_name.ilike(f'%{search_query}%')
+            )
+        )
+    
+    pagination = query.order_by(User.created_at.desc()).paginate(page=page, per_page=per_page)
+    
+    return render_template('admin_users.html', 
+                          pagination=pagination, 
+                          role_filter=role_filter,
+                          search_query=search_query)
+
+# Route for admin reset user password
+@app.route('/admin/reset-user-password/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_reset_password(user_id):
+    """Allow admins to reset user passwords"""
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm_reset = request.form.get('confirm_reset')
+        
+        # Validate confirmation
+        if not confirm_reset:
+            flash('You must confirm the password reset.', 'danger')
+            return render_template('admin_reset_password.html', user=user)
+        
+        # Validate password complexity
+        is_valid, error_message = validate_password_complexity(password)
+        if not is_valid:
+            flash(error_message, 'danger')
+            return render_template('admin_reset_password.html', user=user)
+        
+        try:
+            # Update the user's password
+            old_hash = user.password_hash  # Keep for logging
+            user.password_hash = generate_password_hash(password)
+            db.session.commit()
+            
+            # Log the password reset action
+            log_admin_action(
+                admin_user=current_user, 
+                action_type='password_reset', 
+                target_user=user,
+                details={
+                    'method': 'admin_reset',
+                    'old_hash_changed': old_hash != user.password_hash
+                }
+            )
+            
+            flash(f'Password for {user.email} has been reset successfully.', 'success')
+            return redirect(url_for('admin_users'))
+        
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error resetting password for user {user.email}: {str(e)}")
+            flash('An error occurred while resetting the password.', 'danger')
+    
+    return render_template('admin_reset_password.html', user=user)
+
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(host='0.0.0.0', port=5000, debug=True)
