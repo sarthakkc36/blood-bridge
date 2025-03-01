@@ -47,7 +47,7 @@
                             <div class="detail-label">Age</div>
                             <div class="detail-value">
                                 {% if donor.date_of_birth %}
-                                    {{ ((now - donor.date_of_birth).days / 365.25)|int }} years
+                                {{ ((now.date() - donor.date_of_birth).days / 365.25)|int }} years
                                 {% else %}
                                     Not specified
                                 {% endif %}

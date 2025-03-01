@@ -115,3 +115,60 @@ class DonorVerification(db.Model):
     # Relationships
     donor = db.relationship('User', foreign_keys=[donor_id], backref='verifications')
     reviewer = db.relationship('User', foreign_keys=[reviewer_id])
+import secrets
+from datetime import datetime, timedelta
+
+class PasswordReset(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    token = db.Column(db.String(100), nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.Boolean, default=False)
+    
+    # Relationship
+    user = db.relationship('User', backref='password_resets')
+    
+    def __init__(self, user_id, expires_in=24):
+        """
+        Initialize a new password reset token
+        
+        Args:
+            user_id: The ID of the user requesting the password reset
+            expires_in: Hours until the token expires (default: 24)
+        """
+        self.user_id = user_id
+        self.token = secrets.token_urlsafe(64)
+        self.created_at = datetime.utcnow()
+        self.expires_at = self.created_at + timedelta(hours=expires_in)
+        self.used = False
+    
+    def is_valid(self):
+        """Check if the token is valid (not expired and not used)"""
+        return not self.used and datetime.utcnow() < self.expires_at
+    
+    def invalidate(self):
+        """Mark the token as used"""
+        self.used = True
+
+# Add these methods to the User class
+
+def generate_password_reset_token(self):
+    """Generate a new password reset token for the user"""
+    # Invalidate any existing tokens
+    for token in self.password_resets:
+        if not token.used and datetime.utcnow() < token.expires_at:
+            token.invalidate()
+    
+    # Create a new token
+    reset = PasswordReset(user_id=self.id)
+    db.session.add(reset)
+    db.session.commit()
+    return reset.token
+
+def verify_password_reset_token(self, token):
+    """Verify if a given token is valid for this user"""
+    reset = PasswordReset.query.filter_by(user_id=self.id, token=token, used=False).first()
+    if reset and reset.is_valid():
+        return reset
+    return None

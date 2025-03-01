@@ -2,7 +2,7 @@ import os
 import json
 import logging
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_from_directory
+from flask import Flask, abort, render_template, request, redirect, url_for, flash, session, send_from_directory
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -37,7 +37,7 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'address_proofs'), exist_o
 # Import these after initializing app
 from extensions import db
 from models import User, BloodRequest, Donation, DonorVerification
-from utils import admin_required, donor_required, receiver_required, format_verification_status, calculate_next_donation_date
+from utils import admin_required, calculate_blood_compatibility, donor_required, receiver_required, format_verification_status, calculate_next_donation_date
 
 # Initialize SQLAlchemy
 db.init_app(app)
@@ -549,3 +549,141 @@ with app.app_context():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+from email_utils import send_password_reset_email
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Handle forgot password requests"""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        
+        if not email:
+            flash('Please enter your email address.', 'danger')
+            return redirect(url_for('forgot_password'))
+        
+        user = User.query.filter_by(email=email).first()
+        
+        # Even if the user doesn't exist, don't reveal this information
+        # to prevent email enumeration attacks
+        if user:
+            token = user.generate_password_reset_token()
+            
+            # In production, use the actual host
+            reset_url = request.host_url.rstrip('/') + url_for('reset_password')
+            
+            if send_password_reset_email(user, token, reset_url):
+                flash('Password reset instructions have been sent to your email.', 'success')
+            else:
+                flash('There was an error sending the password reset email. Please try again later.', 'danger')
+        else:
+            # Log this but don't tell the user (to prevent email enumeration)
+            logging.info(f"Password reset requested for non-existent email: {email}")
+            # Still show success message to prevent email enumeration
+            flash('If your email is registered, you will receive password reset instructions.', 'success')
+        
+        return redirect(url_for('login'))
+    
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    """Handle password reset with token verification"""
+    token = request.args.get('token') or request.form.get('token')
+    
+    if not token:
+        flash('Invalid or missing reset token.', 'danger')
+        return redirect(url_for('login'))
+    
+    # Find the reset token in the database
+    reset = PasswordReset.query.filter_by(token=token, used=False).first()
+    
+    if not reset or not reset.is_valid():
+        flash('The password reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('login'))
+    
+    user = User.query.get(reset.user_id)
+    
+    if not user:
+        flash('User account not found.', 'danger')
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if not password or len(password) < 8:
+            flash('Password must be at least 8 characters long.', 'danger')
+            return render_template('reset_password.html', token=token)
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('reset_password.html', token=token)
+        
+        # Update the user's password
+        user.password_hash = generate_password_hash(password)
+        
+        # Invalidate the token
+        reset.invalidate()
+        
+        db.session.commit()
+        
+        flash('Your password has been reset successfully. You can now log in with your new password.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('reset_password.html', token=token)
+
+# Admin route for resetting user passwords
+@app.route('/admin/reset-user-password/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_reset_password(user_id):
+    """Allow admins to reset user passwords"""
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        password = request.form.get('password')
+        
+        if not password or len(password) < 8:
+            flash('Password must be at least 8 characters long.', 'danger')
+            return render_template('admin_reset_password.html', user=user)
+        
+        # Update the user's password
+        user.password_hash = generate_password_hash(password)
+        db.session.commit()
+        
+        flash(f'Password for {user.email} has been reset successfully.', 'success')
+        return redirect(url_for('admin_users'))
+    
+    return render_template('admin_reset_password.html', user=user)
+
+# Route to view all users (for admin)
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_users():
+    """Admin page to view and manage users"""
+    role_filter = request.args.get('role', 'all')
+    search_query = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    
+    query = User.query
+    
+    if role_filter != 'all':
+        query = query.filter_by(role=role_filter)
+    
+    if search_query:
+        query = query.filter(
+            db.or_(
+                User.email.ilike(f'%{search_query}%'),
+                User.first_name.ilike(f'%{search_query}%'),
+                User.last_name.ilike(f'%{search_query}%')
+            )
+        )
+    
+    pagination = query.order_by(User.created_at.desc()).paginate(page=page, per_page=per_page)
+    
+    return render_template('admin_users.html', 
+                          pagination=pagination, 
+                          role_filter=role_filter,
+                          search_query=search_query)
